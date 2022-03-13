@@ -2,6 +2,145 @@
 #include <iostream>
 using namespace std;
 
+void ComportamientoJugador::pintarMapa(Sensores sensores){
+
+	mapaResultado[fil][col] = sensores.terreno[0];
+	int sens;
+	switch(brujula){
+				case 0: // norte ^
+				
+					sens = 1;
+					for(int i= - 1; i <= 1; i++){
+						
+						mapaResultado[fil-1][col + i] = sensores.terreno[sens];
+						sens++;
+						
+					}
+					sens = 4;
+					for(int i= -2; i <= 2; i++){
+						mapaResultado[fil -2][col + i] = sensores.terreno[sens];
+						sens++;
+
+					}
+
+					sens = 9;
+					for(int i= -3; i <= 3; i++){
+						mapaResultado[fil -3][col + i] = sensores.terreno[sens];
+						sens++;
+
+					}
+
+
+
+
+
+				 	break;
+
+
+
+
+
+				case 1: //este  -->
+					
+
+					sens = 1;
+					for(int i= - 1; i <= 1; i++){
+						
+						mapaResultado[fil + i][col + 1] = sensores.terreno[sens];
+						sens++;
+						
+					}
+					sens = 4;
+					for(int i= -2; i <= 2; i++){
+						mapaResultado[fil + i][col + 2] = sensores.terreno[sens];
+						sens++;
+
+					}
+
+					sens = 9;
+					for(int i= -3; i <= 3; i++){
+						mapaResultado[fil + i][col + 3] = sensores.terreno[sens];
+						sens++;
+
+					}
+
+
+
+
+
+
+
+					break;
+				case 2: //sur V
+
+
+
+
+					sens = 3;
+					for(int i= - 1; i <= 1; i++){
+						
+						mapaResultado[fil+1][col + i] = sensores.terreno[sens];
+						sens--;
+						
+					}
+					sens = 8;
+					for(int i= -2; i <= 2; i++){
+						mapaResultado[fil +2][col + i] = sensores.terreno[sens];
+						sens--;
+
+					}
+
+					sens = 15;
+					for(int i= -3; i <= 3; i++){
+						mapaResultado[fil +3][col + i] = sensores.terreno[sens];
+						sens--;
+
+					}
+
+
+
+
+					break;
+				case 3: //oeste <--
+					sens = 3;
+					for(int i= - 1; i <= 1; i++){
+						
+						mapaResultado[fil + i][col - 1] = sensores.terreno[sens];
+						sens--;
+						
+					}
+					sens = 8;
+					for(int i= -2; i <= 2; i++){
+						mapaResultado[fil + i][col - 2] = sensores.terreno[sens];
+						sens--;
+
+					}
+
+					sens = 15;
+					for(int i= -3; i <= 3; i++){
+						mapaResultado[fil + i][col - 3] = sensores.terreno[sens];
+						sens--;
+
+					}
+
+
+
+					//mapaResultado[fil+1][col-1] = sensores.terreno[1];
+					//mapaResultado[fil][col-1] = sensores.terreno[2];
+					//mapaResultado[fil-1][col-1] = sensores.terreno[3];
+					
+
+
+
+
+
+					break;
+			}
+
+
+	
+}
+
 
 
 Action ComportamientoJugador::think(Sensores sensores){
@@ -30,18 +169,12 @@ Action ComportamientoJugador::think(Sensores sensores){
 	}
 
 
-	if(sensores.terreno[0] == 'G' and !bien_situado){
-		fil = sensores.posF;
-		col = sensores.posC;
-		bien_situado = true;
-
-
-	}
-
 	if(bien_situado){
 		fil = sensores.posF;
 		col = sensores.posC;
-		mapaResultado[fil][col] = sensores.terreno[0];
+		brujula = sensores.sentido;
+		pintarMapa(sensores);
+		
 	}
 
 
@@ -58,17 +191,8 @@ Action ComportamientoJugador::think(Sensores sensores){
 		accion = actTURN_R;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
+	if(sensores.terreno[1] == 'M')
+		accion = actTURN_R;
 
 
 
@@ -106,3 +230,6 @@ Action ComportamientoJugador::think(Sensores sensores){
 int ComportamientoJugador::interact(Action accion, int valor){
   return false;
 }
+
+
+

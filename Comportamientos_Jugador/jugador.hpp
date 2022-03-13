@@ -5,8 +5,9 @@
 using namespace std;
 
 class ComportamientoJugador : public Comportamiento{
-
   public:
+    void pintarMapa(Sensores sensores);
+
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
       // Dar el valor inicial a las variables de estado
@@ -14,9 +15,11 @@ class ComportamientoJugador : public Comportamiento{
       fil = col = 99;
       brujula = 0;    //(0 indica orientación norte, 1 este, 2 sur y 3 oeste)
       ultimaAccion = actIDLE;
-      girar_derecha = false;
+      girar_derecha = true;
       bien_situado = true;
     }
+
+    
 
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}

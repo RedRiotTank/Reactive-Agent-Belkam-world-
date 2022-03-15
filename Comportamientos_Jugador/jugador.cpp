@@ -8,98 +8,58 @@ void ComportamientoJugador::pintarMapa(Sensores sensores){
 	int sens;
 	switch(brujula){
 				case 0: // norte ^
-				
 					sens = 1;
 					for(int i= - 1; i <= 1; i++){
 						
 						mapaResultado[fil-1][col + i] = sensores.terreno[sens];
 						sens++;
-						
 					}
 					sens = 4;
 					for(int i= -2; i <= 2; i++){
 						mapaResultado[fil -2][col + i] = sensores.terreno[sens];
 						sens++;
-
 					}
-
 					sens = 9;
 					for(int i= -3; i <= 3; i++){
 						mapaResultado[fil -3][col + i] = sensores.terreno[sens];
 						sens++;
-
 					}
-
-
-
-
-
 				 	break;
-
-
-
-
-
 				case 1: //este  -->
-					
-
 					sens = 1;
 					for(int i= - 1; i <= 1; i++){
-						
 						mapaResultado[fil + i][col + 1] = sensores.terreno[sens];
 						sens++;
-						
 					}
 					sens = 4;
 					for(int i= -2; i <= 2; i++){
 						mapaResultado[fil + i][col + 2] = sensores.terreno[sens];
 						sens++;
-
 					}
 
 					sens = 9;
 					for(int i= -3; i <= 3; i++){
 						mapaResultado[fil + i][col + 3] = sensores.terreno[sens];
 						sens++;
-
 					}
-
-
-
-
-
-
-
 					break;
 				case 2: //sur V
-
-
-
-
 					sens = 3;
 					for(int i= - 1; i <= 1; i++){
 						
 						mapaResultado[fil+1][col + i] = sensores.terreno[sens];
 						sens--;
-						
 					}
 					sens = 8;
 					for(int i= -2; i <= 2; i++){
 						mapaResultado[fil +2][col + i] = sensores.terreno[sens];
 						sens--;
-
 					}
-
 					sens = 15;
 					for(int i= -3; i <= 3; i++){
 						mapaResultado[fil +3][col + i] = sensores.terreno[sens];
 						sens--;
-
 					}
-
-
-
-
 					break;
 				case 3: //oeste <--
 					sens = 3;
@@ -107,33 +67,17 @@ void ComportamientoJugador::pintarMapa(Sensores sensores){
 						
 						mapaResultado[fil + i][col - 1] = sensores.terreno[sens];
 						sens--;
-						
 					}
 					sens = 8;
 					for(int i= -2; i <= 2; i++){
 						mapaResultado[fil + i][col - 2] = sensores.terreno[sens];
 						sens--;
-
 					}
-
 					sens = 15;
 					for(int i= -3; i <= 3; i++){
 						mapaResultado[fil + i][col - 3] = sensores.terreno[sens];
 						sens--;
-
 					}
-
-
-
-					//mapaResultado[fil+1][col-1] = sensores.terreno[1];
-					//mapaResultado[fil][col-1] = sensores.terreno[2];
-					//mapaResultado[fil-1][col-1] = sensores.terreno[3];
-					
-
-
-
-
-
 					break;
 			}
 
@@ -159,11 +103,11 @@ Action ComportamientoJugador::think(Sensores sensores){
 			break;
 		case actTURN_L:
 			brujula = (brujula+3)%4;
-			girar_derecha = (rand()%2==0);
+			//girar_derecha = (rand()%2==0);
 			break;
 		case actTURN_R:
 			brujula = (brujula+1)%4;
-			girar_derecha = (rand()%2==0);
+			//girar_derecha = (rand()%2==0);
 			break;
 
 	}
@@ -178,21 +122,38 @@ Action ComportamientoJugador::think(Sensores sensores){
 	}
 
 
+
+
+
+
+
+
 	//Decidir la nueva accion
 
-	if(/*(sensores.terreno[2] == 'T' or sensores.terreno[2] == 'S' or sensores.terreno[2] == 'G') and*/ 
-		sensores.superficie[2] == '_'){
+
+//agua A arboles B
+	
+
+
+	if((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
+		or  (sensores.terreno[2] == 'A' and tengoBikini) 
+		or (sensores.terreno[2] == 'B' and tengoZapas)){
+		
 		accion = actFORWARD;
-	}
-	else if(!girar_derecha){
-		accion = actTURN_L;
 	}
 	else {
 		accion = actTURN_R;
 	}
 
-	if(sensores.terreno[1] == 'M')
-		accion = actTURN_R;
+	
+
+
+	//detectar si estamos encerrados
+	
+//----------
+	if(protEncerrado){
+		
+	}
 
 
 

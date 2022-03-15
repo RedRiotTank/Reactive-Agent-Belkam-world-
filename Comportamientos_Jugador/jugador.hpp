@@ -15,7 +15,7 @@ class ComportamientoJugador : public Comportamiento{
       fil = col = 99;
       brujula = 0;    //(0 indica orientación norte, 1 este, 2 sur y 3 oeste)
       ultimaAccion = actIDLE;
-      girar_derecha = true;
+      tengoZapas = tengoBikini = false;
       bien_situado = true;
     }
 
@@ -31,7 +31,7 @@ class ComportamientoJugador : public Comportamiento{
   
   // Declarar aquí las variables de estado
 
-    bool girar_derecha;
+    bool tengoZapas, tengoBikini;
 
     int fil, col, brujula;
 

@@ -230,6 +230,68 @@ pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores
 		return res;
 	}
 
+	//posicionamiento
+	if(!bien_situado){
+		//lado izq
+		for(int i=1; i <= 11; i++){
+
+			if(sensores.terreno[i] == 'G'){
+				res.first = true;
+				res.second = i;
+				return res;
+			}
+
+			if(i == 1)
+				i = 3;
+
+			if(i == 5)
+				i == 8;
+
+		}
+
+		//centro
+		if(sensores.terreno[2] == 'G'){
+			res.first = true;
+			res.second = 2;
+			return res;
+		}
+
+		if(sensores.terreno[6] == 'G'){
+			res.first = true;
+			res.second = 6;
+			return res;
+		}
+
+		if(sensores.terreno[12] == 'G'){
+			res.first = true;
+			res.second = 12;
+			return res;
+		}
+
+		//lado derecho
+
+	
+		for(int i=3; i <= 11; i++){
+			if(sensores.terreno[i] == 'G'){
+				res.first = true;
+				res.second = i;
+				return res;
+			}
+
+			if(i == 3)
+				i = 6;
+
+			if(i == 8)
+				i == 12;
+		}
+	}
+	
+	if(sensores.terreno[0] == 'G'){
+		res.first = false;
+		res.first = 0;
+		return res;
+	}
+
 	res.first = false;
 	res.second = -1;
 

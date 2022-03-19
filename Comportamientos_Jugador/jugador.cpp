@@ -106,28 +106,26 @@ void ComportamientoJugador::actualizarPosYBruj(Sensores sensores){
 //bikini, zapatillas y posicionamiento, RECARGA NO.
 pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores){
 	pair<bool,int> res;
-	//lado izq
-
+	
+	//bikini
 	if(!tengoBikini){
+		//lado izq
 		for(int i=1; i <= 11; i++){
 
-		if(sensores.terreno[i] == 'K'){
-			res.first = true;
-			res.second = i;
-			return res;
+			if(sensores.terreno[i] == 'K'){
+				res.first = true;
+				res.second = i;
+				return res;
+			}
+
+			if(i == 1)
+				i = 3;
+
+			if(i == 5)
+				i == 8;
 		}
 
-		if(i == 1)
-			i = 3;
-
-		if(i == 5)
-			i == 8;
-
-		}
-	}
-	//centro
-	
-	if(!tengoBikini){
+		//centro
 		if(sensores.terreno[2] == 'K'){
 			res.first = true;
 			res.second = 2;
@@ -146,61 +144,50 @@ pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores
 			return res;
 		}
 
-
-	}
-
-	//lado derecho
-
-	if(!tengoBikini){
+		// derecho
 		for(int i=3; i <= 11; i++){
 
-		if(sensores.terreno[i] == 'K'){
-			res.first = true;
-			res.second = i;
-			return res;
-		}
+			if(sensores.terreno[i] == 'K'){
+				res.first = true;
+				res.second = i;
+				return res;
+			}
 
-		if(i == 3)
-			i = 6;
+			if(i == 3)
+				i = 6;
 
-		if(i == 8)
-			i == 12;
+			if(i == 8)
+				i == 12;
 
 		}
 	}
-
+	
 	if(sensores.terreno[0] == 'K'){
 		res.first = false;
 		res.first = 0;
 		return res;
 	}
 
-
-
 	//zapatillas:
-
-	//lado izq
-
 	if(!tengoZapas){
+		//lado izq
 		for(int i=1; i <= 11; i++){
 
-		if(sensores.terreno[i] == 'D'){
-			res.first = true;
-			res.second = i;
-			return res;
+			if(sensores.terreno[i] == 'D'){
+				res.first = true;
+				res.second = i;
+				return res;
+			}
+
+			if(i == 1)
+				i = 3;
+
+			if(i == 5)
+				i == 8;
+
 		}
 
-		if(i == 1)
-			i = 3;
-
-		if(i == 5)
-			i == 8;
-
-		}
-	}
-	//centro
-	
-	if(!tengoZapas){
+		//centro
 		if(sensores.terreno[2] == 'D'){
 			res.first = true;
 			res.second = 2;
@@ -219,50 +206,29 @@ pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores
 			return res;
 		}
 
+		//lado derecho
 
-	}
-
-	//lado derecho
-
-	if(!tengoZapas){
+	
 		for(int i=3; i <= 11; i++){
+			if(sensores.terreno[i] == 'D'){
+				res.first = true;
+				res.second = i;
+				return res;
+			}
 
-		if(sensores.terreno[i] == 'D'){
-			res.first = true;
-			res.second = i;
-			return res;
-		}
+			if(i == 3)
+				i = 6;
 
-		if(i == 3)
-			i = 6;
-
-		if(i == 8)
-			i == 12;
-
+			if(i == 8)
+				i == 12;
 		}
 	}
-
+	
 	if(sensores.terreno[0] == 'D'){
 		res.first = false;
 		res.first = 0;
 		return res;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	res.first = false;
 	res.second = -1;

@@ -87,6 +87,84 @@ void ComportamientoJugador::pintarMapa(Sensores sensores){
 
 
 
+//bikini, zapatillas y posicionamiento, RECARGA NO.
+pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores){
+	pair<bool,int> res;
+	//lado izq
+
+	if(!tengoBikini){
+		for(int i=1; i <= 11; i++){
+
+		if(sensores.terreno[i] == 'K'){
+			res.first = true;
+			res.second = i;
+			return res;
+		}
+
+		if(i == 1)
+			i = 3;
+
+		if(i == 5)
+			i == 8;
+
+		}
+	}
+	//centro
+	
+	if(!tengoBikini){
+		if(sensores.terreno[2] == 'K'){
+			res.first = true;
+			res.second = 2;
+			return res;
+		}
+
+		if(sensores.terreno[6] == 'K'){
+			res.first = true;
+			res.second = 6;
+			return res;
+		}
+
+		if(sensores.terreno[12] == 'K'){
+			res.first = true;
+			res.second = 12;
+			return res;
+		}
+
+
+	}
+
+	//lado derecho
+
+	if(!tengoBikini){
+		for(int i=3; i <= 11; i++){
+
+		if(sensores.terreno[i] == 'K'){
+			res.first = true;
+			res.second = i;
+			return res;
+		}
+
+		if(i == 3)
+			i = 6;
+
+		if(i == 8)
+			i == 12;
+
+		}
+	}
+
+	if(sensores.terreno[0] == 'K'){
+		res.first = false;
+		res.first = 0;
+		return res;
+	}
+
+	res.first = false;
+	res.second = -1;
+
+	return res;
+}
+
 Action ComportamientoJugador::think(Sensores sensores){
 
 	Action accion = actIDLE;
@@ -121,6 +199,36 @@ Action ComportamientoJugador::think(Sensores sensores){
 		
 	}
 
+	if(!protocoloPrioritario){
+
+		pair<bool,int> prot;
+		prot = detectoObjetoPrioritario(sensores);
+
+		if(prot.first == true){
+			
+			protocoloPrioritario = true;
+
+			
+
+			if (prot.second == 1 || prot.second == 4 || prot.second == 5 
+			|| prot.second == 9 || prot.second == 10 || prot.second == 11)
+			PrioIzq = true;
+
+			else if (prot.second == 3 || prot.second == 7 || prot.second == 8
+			|| prot.second == 13 || prot.second == 14 || prot.second == 15)
+			prioDcha = true;
+
+			else if (prot.second == 2 || prot.second == 6 || prot.second == 12)
+			PrioCentro = true;
+
+
+
+
+
+		}
+	}
+
+
 
 
 
@@ -130,22 +238,50 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	//Decidir la nueva accion
 
-
-//agua A arboles B
-	
-
-
-	if((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
+	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
 		or  (sensores.terreno[2] == 'A' and tengoBikini) 
-		or (sensores.terreno[2] == 'B' and tengoZapas)){
+		or (sensores.terreno[2] == 'B' and tengoZapas)) ){
 		
 		accion = actFORWARD;
 	}
-	else if (!girar_derecha){
+	else if (!protocoloPrioritario and !girar_derecha ){
 		accion = actTURN_L;
-	} else {
+	} else if (!protocoloPrioritario){
 		accion = actTURN_R;
 	}
+
+	if(protocoloPrioritario){
+
+		pair<bool,int> prio = detectoObjetoPrioritario(sensores);
+
+		if (prio.first == true)
+			accion = actFORWARD;
+		else {
+
+			if(prio.first == false){
+				if(PrioIzq){
+					accion = actTURN_L;
+					PrioIzq = false;
+				}
+
+				if(prioDcha){
+					accion = actTURN_R;
+					prioDcha = false;
+				}
+			}
+		}
+
+		if(prio.second == 0)
+			protocoloPrioritario = false;
+
+		if(sensores.terreno[0] == 'K')
+			tengoBikini = true;
+
+		if(sensores.terreno[0] == 'D')
+			tengoZapas = true;		
+	}
+
+
 
 	
 
@@ -153,6 +289,7 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 
 // No se que es esto -------------------------------------------
+	/*
 	cout << "Posicion: fila " << sensores.posF << " columna " << sensores.posC << " ";
 	switch(sensores.sentido){
 		case 0: cout << "Norte" << endl; break;
@@ -174,7 +311,17 @@ Action ComportamientoJugador::think(Sensores sensores){
 	cout << "Reset: " << sensores.reset << endl;
 	cout << "Vida: " << sensores.vida << endl;
 	cout << endl;
+*/
+	if(protocoloPrioritario){
+		//cout << "prot prior ACTIVADO" << endl;
 
+
+
+	}
+	else 
+		//cout << "prot prio DESACTIVADO" <<	endl;
+
+	
 
 
 //----------------------------------------------------------------------

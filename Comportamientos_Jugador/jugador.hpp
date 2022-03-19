@@ -7,6 +7,10 @@ using namespace std;
 class ComportamientoJugador : public Comportamiento{
   public:
     void pintarMapa(Sensores sensores);
+    pair<bool,int> detectoObjetoPrioritario(Sensores sensores);  
+
+
+
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
@@ -18,6 +22,11 @@ class ComportamientoJugador : public Comportamiento{
       tengoZapas = tengoBikini = false;
       bien_situado = true;
       girar_derecha = false;
+      protocoloPrioritario = false;
+      PrioCentro = PrioIzq = prioDcha = false;
+      
+      
+      
     }
 
     
@@ -33,11 +42,13 @@ class ComportamientoJugador : public Comportamiento{
   // Declarar aquí las variables de estado
     bool girar_derecha;
     bool tengoZapas, tengoBikini;
+    bool protocoloPrioritario;
+    bool PrioCentro, PrioIzq, prioDcha;
 
     int fil, col, brujula;
-
     Action ultimaAccion;
     bool bien_situado; //nos dice si conocemos las coordenadas en las que estamos.
+
 
 };
 

@@ -80,12 +80,28 @@ void ComportamientoJugador::pintarMapa(Sensores sensores){
 					}
 					break;
 			}
-
-
-	
 }
 
-
+void ComportamientoJugador::actualizarPosYBruj(Sensores sensores){
+	switch(ultimaAccion){
+		case actFORWARD:
+			switch(brujula){
+				case 0: fil--; break;
+				case 1: col++; break;
+				case 2: fil++; break;
+				case 3: col--; break;
+			}
+			break;
+		case actTURN_L:
+			brujula = (brujula+3)%4;
+			girar_derecha = (rand()%2==0);
+			break;
+		case actTURN_R:
+			brujula = (brujula+1)%4;
+			girar_derecha = (rand()%2==0);
+			break;
+	}
+}
 
 //bikini, zapatillas y posicionamiento, RECARGA NO.
 pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores){
@@ -254,31 +270,58 @@ pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores
 	return res;
 }
 
+Action ComportamientoJugador::movimientoDefault(Sensores sensores){
+
+	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
+		or  (sensores.terreno[2] == 'A' and tengoBikini) 
+		or (sensores.terreno[2] == 'B' and tengoZapas)) ){
+		
+		return actFORWARD;
+	}
+	else if (!protocoloPrioritario and !girar_derecha ){
+		return actTURN_L;
+	} else if (!protocoloPrioritario){
+		return actTURN_R;
+	}
+}
+
+Action ComportamientoJugador::movimientoPrioritario(Sensores sensores){
+pair<bool,int> prio = detectoObjetoPrioritario(sensores);
+
+		if (prio.first == true)
+			return actFORWARD;
+		else {
+
+			if(prio.first == false){
+				if(PrioIzq){
+					PrioIzq = false;
+					return actTURN_L;
+					
+				}
+
+				if(prioDcha){
+					prioDcha = false;
+					return actTURN_R;
+				}
+			}
+		}
+
+		if(prio.second == 0)
+			protocoloPrioritario = false;
+
+		if(sensores.terreno[0] == 'K')
+			tengoBikini = true;
+
+		if(sensores.terreno[0] == 'D')
+			tengoZapas = true;	
+
+}
+
 Action ComportamientoJugador::think(Sensores sensores){
 
 	Action accion = actIDLE;
 
-	
-	switch(ultimaAccion){
-		case actFORWARD:
-			switch(brujula){
-				case 0: fil--; break;
-				case 1: col++; break;
-				case 2: fil++; break;
-				case 3: col--; break;
-			}
-			break;
-		case actTURN_L:
-			brujula = (brujula+3)%4;
-			girar_derecha = (rand()%2==0);
-			break;
-		case actTURN_R:
-			brujula = (brujula+1)%4;
-			girar_derecha = (rand()%2==0);
-			break;
-
-	}
-
+	actualizarPosYBruj(sensores);
 
 	if(bien_situado){
 		fil = sensores.posF;
@@ -297,8 +340,6 @@ Action ComportamientoJugador::think(Sensores sensores){
 			
 			protocoloPrioritario = true;
 
-			
-
 			if (prot.second == 1 || prot.second == 4 || prot.second == 5 
 			|| prot.second == 9 || prot.second == 10 || prot.second == 11)
 			PrioIzq = true;
@@ -309,75 +350,66 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 			else if (prot.second == 2 || prot.second == 6 || prot.second == 12)
 			PrioCentro = true;
-
-
-
-
-
 		}
 	}
-
-
-
-
-
-
-
-
 
 	//Decidir la nueva accion
 
-	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
-		or  (sensores.terreno[2] == 'A' and tengoBikini) 
-		or (sensores.terreno[2] == 'B' and tengoZapas)) ){
-		
-		accion = actFORWARD;
-	}
-	else if (!protocoloPrioritario and !girar_derecha ){
-		accion = actTURN_L;
-	} else if (!protocoloPrioritario){
-		accion = actTURN_R;
-	}
+	accion = movimientoDefault(sensores);
 
 	if(protocoloPrioritario){
-
-		pair<bool,int> prio = detectoObjetoPrioritario(sensores);
-
-		if (prio.first == true)
-			accion = actFORWARD;
-		else {
-
-			if(prio.first == false){
-				if(PrioIzq){
-					accion = actTURN_L;
-					PrioIzq = false;
-				}
-
-				if(prioDcha){
-					accion = actTURN_R;
-					prioDcha = false;
-				}
-			}
-		}
-
-		if(prio.second == 0)
-			protocoloPrioritario = false;
-
-		if(sensores.terreno[0] == 'K')
-			tengoBikini = true;
-
-		if(sensores.terreno[0] == 'D')
-			tengoZapas = true;		
+		accion = movimientoPrioritario(sensores);
+			
 	}
 
+//----------------------------------------------------------------------
+	// Determinar el efecto de la ultima accion enviada
+	ultimaAccion = accion;
+	return accion;
+}
+
+int ComportamientoJugador::interact(Action accion, int valor){
+  return false;
+}
 
 
-	
 
 
 
 
-// No se que es esto -------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//couts que se encontraban entre la decisión de la acción y el return final.
+
 	/*
 	cout << "Posicion: fila " << sensores.posF << " columna " << sensores.posC << " ";
 	switch(sensores.sentido){
@@ -401,27 +433,3 @@ Action ComportamientoJugador::think(Sensores sensores){
 	cout << "Vida: " << sensores.vida << endl;
 	cout << endl;
 */
-	if(protocoloPrioritario){
-		//cout << "prot prior ACTIVADO" << endl;
-
-
-
-	}
-	else 
-		//cout << "prot prio DESACTIVADO" <<	endl;
-
-	
-
-
-//----------------------------------------------------------------------
-	// Determinar el efecto de la ultima accion enviada
-	ultimaAccion = accion;
-	return accion;
-}
-
-int ComportamientoJugador::interact(Action accion, int valor){
-  return false;
-}
-
-
-

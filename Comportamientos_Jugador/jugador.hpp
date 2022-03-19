@@ -7,9 +7,11 @@ using namespace std;
 class ComportamientoJugador : public Comportamiento{
   public:
     void pintarMapa(Sensores sensores);
+    void actualizarPosYBruj(Sensores sensores);
     pair<bool,int> detectoObjetoPrioritario(Sensores sensores);  
 
-
+    Action movimientoDefault(Sensores sensores);
+    Action movimientoPrioritario(Sensores sensores);
 
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){

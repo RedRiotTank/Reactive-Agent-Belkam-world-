@@ -103,10 +103,19 @@ void ComportamientoJugador::actualizarPosYBruj(Sensores sensores){
 	}
 }
 
-//bikini, zapatillas y posicionamiento, RECARGA NO.
+void ComportamientoJugador::SituarEnMapa(Sensores sensores) {
+	fil = sensores.posF;
+	col = sensores.posC;
+	brujula = sensores.sentido;
+	pintarMapa(sensores);
+}
+
 pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores){
 	pair<bool,int> res;
 	
+	//bikini, zapatillas y posicionamiento, RECARGA NO.
+
+
 	//bikini
 	if(!tengoBikini){
 		//lado izq
@@ -345,19 +354,7 @@ pair<bool,int> prio = detectoObjetoPrioritario(sensores);
 
 }
 
-Action ComportamientoJugador::think(Sensores sensores){
-
-	Action accion = actIDLE;
-
-	actualizarPosYBruj(sensores);
-
-	if(bien_situado){
-		fil = sensores.posF;
-		col = sensores.posC;
-		brujula = sensores.sentido;
-		pintarMapa(sensores);
-		
-	}
+void ComportamientoJugador::seleccionPosicionPrioritario(Sensores sensores){
 
 	if(!protocoloPrioritario){
 
@@ -380,6 +377,20 @@ Action ComportamientoJugador::think(Sensores sensores){
 			PrioCentro = true;
 		}
 	}
+}
+
+Action ComportamientoJugador::think(Sensores sensores){
+
+	Action accion = actIDLE;
+
+	actualizarPosYBruj(sensores);
+
+	if(bien_situado){
+		SituarEnMapa(sensores);
+	}
+
+	seleccionPosicionPrioritario(sensores);
+	
 
 	//Decidir la nueva accion
 

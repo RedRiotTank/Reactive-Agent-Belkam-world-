@@ -9,6 +9,8 @@ class ComportamientoJugador : public Comportamiento{
     void pintarMapa(Sensores sensores);
     void actualizarPosYBruj(Sensores sensores);
     pair<bool,int> detectoObjetoPrioritario(Sensores sensores);  
+    void SituarEnMapa(Sensores sensores);
+    void seleccionPosicionPrioritario(Sensores sensores);
 
     Action movimientoDefault(Sensores sensores);
     Action movimientoPrioritario(Sensores sensores);

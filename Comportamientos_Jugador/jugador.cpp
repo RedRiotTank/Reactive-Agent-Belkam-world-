@@ -159,6 +159,95 @@ pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores
 		return res;
 	}
 
+
+
+	//zapatillas:
+
+	//lado izq
+
+	if(!tengoZapas){
+		for(int i=1; i <= 11; i++){
+
+		if(sensores.terreno[i] == 'D'){
+			res.first = true;
+			res.second = i;
+			return res;
+		}
+
+		if(i == 1)
+			i = 3;
+
+		if(i == 5)
+			i == 8;
+
+		}
+	}
+	//centro
+	
+	if(!tengoZapas){
+		if(sensores.terreno[2] == 'D'){
+			res.first = true;
+			res.second = 2;
+			return res;
+		}
+
+		if(sensores.terreno[6] == 'D'){
+			res.first = true;
+			res.second = 6;
+			return res;
+		}
+
+		if(sensores.terreno[12] == 'D'){
+			res.first = true;
+			res.second = 12;
+			return res;
+		}
+
+
+	}
+
+	//lado derecho
+
+	if(!tengoZapas){
+		for(int i=3; i <= 11; i++){
+
+		if(sensores.terreno[i] == 'D'){
+			res.first = true;
+			res.second = i;
+			return res;
+		}
+
+		if(i == 3)
+			i = 6;
+
+		if(i == 8)
+			i == 12;
+
+		}
+	}
+
+	if(sensores.terreno[0] == 'D'){
+		res.first = false;
+		res.first = 0;
+		return res;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	res.first = false;
 	res.second = -1;
 

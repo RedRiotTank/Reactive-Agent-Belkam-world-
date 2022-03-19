@@ -103,11 +103,11 @@ Action ComportamientoJugador::think(Sensores sensores){
 			break;
 		case actTURN_L:
 			brujula = (brujula+3)%4;
-			//girar_derecha = (rand()%2==0);
+			girar_derecha = (rand()%2==0);
 			break;
 		case actTURN_R:
 			brujula = (brujula+1)%4;
-			//girar_derecha = (rand()%2==0);
+			girar_derecha = (rand()%2==0);
 			break;
 
 	}
@@ -141,19 +141,14 @@ Action ComportamientoJugador::think(Sensores sensores){
 		
 		accion = actFORWARD;
 	}
-	else {
+	else if (!girar_derecha){
+		accion = actTURN_L;
+	} else {
 		accion = actTURN_R;
 	}
 
 	
 
-
-	//detectar si estamos encerrados
-	
-//----------
-	if(protEncerrado){
-		
-	}
 
 
 

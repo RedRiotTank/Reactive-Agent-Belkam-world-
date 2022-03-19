@@ -17,6 +17,7 @@ class ComportamientoJugador : public Comportamiento{
       ultimaAccion = actIDLE;
       tengoZapas = tengoBikini = false;
       bien_situado = true;
+      girar_derecha = false;
     }
 
     
@@ -30,7 +31,7 @@ class ComportamientoJugador : public Comportamiento{
   private:
   
   // Declarar aquí las variables de estado
-
+    bool girar_derecha;
     bool tengoZapas, tengoBikini;
 
     int fil, col, brujula;

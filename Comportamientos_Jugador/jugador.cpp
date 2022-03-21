@@ -9,6 +9,8 @@ void ComportamientoJugador::pM(Sensores sensores, vector<vector<unsigned char>> 
 
 	map[fil][col] = sensores.terreno[0];
 	int sens;
+	
+
 	switch(brujula){
 				case 0: // norte ^
 					sens = 1;
@@ -86,166 +88,6 @@ void ComportamientoJugador::pM(Sensores sensores, vector<vector<unsigned char>> 
 }
 
 
-void ComportamientoJugador::pintarMapa(Sensores sensores){
-
-	mapaResultado[fil][col] = sensores.terreno[0];
-	int sens;
-	switch(brujula){
-				case 0: // norte ^
-					sens = 1;
-					for(int i= - 1; i <= 1; i++){
-						
-						mapaResultado[fil-1][col + i] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 4;
-					for(int i= -2; i <= 2; i++){
-						mapaResultado[fil -2][col + i] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 9;
-					for(int i= -3; i <= 3; i++){
-						mapaResultado[fil -3][col + i] = sensores.terreno[sens];
-						sens++;
-					}
-				 	break;
-				case 1: //este  -->
-					sens = 1;
-					for(int i= - 1; i <= 1; i++){
-						mapaResultado[fil + i][col + 1] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 4;
-					for(int i= -2; i <= 2; i++){
-						mapaResultado[fil + i][col + 2] = sensores.terreno[sens];
-						sens++;
-					}
-
-					sens = 9;
-					for(int i= -3; i <= 3; i++){
-						mapaResultado[fil + i][col + 3] = sensores.terreno[sens];
-						sens++;
-					}
-					break;
-				case 2: //sur V
-					sens = 3;
-					for(int i= - 1; i <= 1; i++){
-						
-						mapaResultado[fil+1][col + i] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 8;
-					for(int i= -2; i <= 2; i++){
-						mapaResultado[fil +2][col + i] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 15;
-					for(int i= -3; i <= 3; i++){
-						mapaResultado[fil +3][col + i] = sensores.terreno[sens];
-						sens--;
-					}
-					break;
-				case 3: //oeste <--
-					sens = 3;
-					for(int i= - 1; i <= 1; i++){
-						
-						mapaResultado[fil + i][col - 1] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 8;
-					for(int i= -2; i <= 2; i++){
-						mapaResultado[fil + i][col - 2] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 15;
-					for(int i= -3; i <= 3; i++){
-						mapaResultado[fil + i][col - 3] = sensores.terreno[sens];
-						sens--;
-					}
-					break;
-			}
-}
-
-void ComportamientoJugador::pintarMapaAuxiliar(Sensores sensores){
-
-	mapaAuxiliar[filAux][colAux] = sensores.terreno[0];
-	int sens;
-	switch(brujulaAux){
-				case 0: // norte ^
-					sens = 1;
-					for(int i= - 1; i <= 1; i++){
-						
-						mapaAuxiliar[filAux-1][colAux + i] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 4;
-					for(int i= -2; i <= 2; i++){
-						mapaAuxiliar[filAux -2][colAux + i] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 9;
-					for(int i= -3; i <= 3; i++){
-						mapaAuxiliar[filAux -3][colAux + i] = sensores.terreno[sens];
-						sens++;
-					}
-				 	break;
-				case 1: //este  -->
-					sens = 1;
-					for(int i= - 1; i <= 1; i++){
-						mapaAuxiliar[filAux + i][colAux + 1] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 4;
-					for(int i= -2; i <= 2; i++){
-						mapaAuxiliar[filAux + i][colAux + 2] = sensores.terreno[sens];
-						sens++;
-					}
-
-					sens = 9;
-					for(int i= -3; i <= 3; i++){
-						mapaAuxiliar[filAux + i][colAux + 3] = sensores.terreno[sens];
-						sens++;
-					}
-					break;
-				case 2: //sur V
-					sens = 3;
-					for(int i= - 1; i <= 1; i++){
-						
-						mapaAuxiliar[filAux+1][colAux + i] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 8;
-					for(int i= -2; i <= 2; i++){
-						mapaAuxiliar[filAux +2][colAux + i] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 15;
-					for(int i= -3; i <= 3; i++){
-						mapaAuxiliar[filAux +3][colAux + i] = sensores.terreno[sens];
-						sens--;
-					}
-					break;
-				case 3: //oeste <--
-					sens = 3;
-					for(int i= - 1; i <= 1; i++){
-						
-						mapaAuxiliar[filAux + i][colAux - 1] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 8;
-					for(int i= -2; i <= 2; i++){
-						mapaAuxiliar[filAux + i][colAux - 2] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 15;
-					for(int i= -3; i <= 3; i++){
-						mapaAuxiliar[filAux + i][colAux - 3] = sensores.terreno[sens];
-						sens--;
-					}
-					break;
-			}
-}
-
 void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
 
 pair<int,int> diferencia;
@@ -299,9 +141,8 @@ void ComportamientoJugador::crearArchivoMatrizAux(Sensores sensores){
 	//-----
 }
 
-void ComportamientoJugador::actualizarPosYBruj(Sensores sensores){
-	if (bien_situado){
-
+void ComportamientoJugador::actualizarPosYBruj(Sensores sensores, int &fil, int &col){
+	
 		switch(ultimaAccion){
 		case actFORWARD:
 			switch(brujula){
@@ -321,39 +162,15 @@ void ComportamientoJugador::actualizarPosYBruj(Sensores sensores){
 			break;
 		}		
 
+	if(sensores.nivel < 2){
 
-
-	} else {
-
-		switch (ultimaAccion)
-		{
-		case actFORWARD:
-				switch(brujulaAux){
-				case 0: filAux--; break;
-				case 1: colAux++; break;
-				case 2: filAux++; break;
-				case 3: colAux--; break;
-			}
-		break;
-
-		case actTURN_L:
-			brujulaAux = (brujulaAux+3)%4;
-			girar_derecha = (rand()%2==0);
-		break;
-		case actTURN_R:
-			brujulaAux = (brujulaAux+1)%4;
-			girar_derecha = (rand()%2==0);
-		break;
-		}
+		brujula = sensores.sentido;
 	}
+	
+
 }
 
-void ComportamientoJugador::SituarEnMapa(Sensores sensores) {
-	fil = sensores.posF;
-	col = sensores.posC;
-	brujula = sensores.sentido;
-	pintarMapa(sensores);
-}
+
 
 pair<bool,int> ComportamientoJugador::detectoObjetoPrioritario(Sensores sensores){
 	pair<bool,int> res;
@@ -626,34 +443,41 @@ void ComportamientoJugador::seleccionPosicionPrioritario(Sensores sensores){
 
 Action ComportamientoJugador::think(Sensores sensores){
 
-	brujulaAux = sensores.sentido;
-	brujula = sensores.sentido;
 
-	if(sensores.nivel == 0)
+	if(sensores.nivel == 0 && primiter){
 		bien_situado = true;
+		fil = sensores.posF;
+		col = sensores.posC;
+		primiter = false;
+	}
 
 	Action accion = actIDLE;
+	
+	if(bien_situado){
+		
+		actualizarPosYBruj(sensores,fil,col);
+		cout << " B" << endl;
+		pM(sensores,mapaResultado,fil,col);
+		cout << " C" << endl;
+	}
+	else{
+		
+		actualizarPosYBruj(sensores,filAux,colAux);
+		
+		pM(sensores,mapaAuxiliar,filAux,colAux);
+	}
 
-	actualizarPosYBruj(sensores);
+	
 
-	pM(sensores,mapaAuxiliar,filAux,colAux);
 
 	crearArchivoMatrizAux(sensores);
 
-	if(sensores.terreno[0] == 'G'){
+	if(sensores.terreno[0] == 'G' && !bien_situado){
 		
-
-		
-
-
 		pasarMapaAuxAmapa(sensores);
-
+		bien_situado = true;
 	}
 
-
-	if(bien_situado){
-		SituarEnMapa(sensores);
-	}
 
 	seleccionPosicionPrioritario(sensores);
 	

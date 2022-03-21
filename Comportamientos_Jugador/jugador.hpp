@@ -10,12 +10,11 @@ using namespace std;
 class ComportamientoJugador : public Comportamiento{
   public:
     void pM(Sensores sensores, vector<vector<unsigned char>> &map, int &fil,int &col) ;
-    void pintarMapa(Sensores sensores);
-    void pintarMapaAuxiliar(Sensores sensores);
+
     void pasarMapaAuxAmapa(Sensores sensores);
-    void actualizarPosYBruj(Sensores sensores);
+    void actualizarPosYBruj(Sensores sensores,int &fil, int &col);
     pair<bool,int> detectoObjetoPrioritario(Sensores sensores);  
-    void SituarEnMapa(Sensores sensores);
+
     void seleccionPosicionPrioritario(Sensores sensores);
     void crearArchivoMatrizAux(Sensores sensores);
     Action movimientoDefault(Sensores sensores);
@@ -42,7 +41,7 @@ class ComportamientoJugador : public Comportamiento{
       //mapa relativo
 
       filAux = colAux = 99;
-      brujulaAux = 0;
+      brujula = 0;
       mapaAuxiliar = vector<vector<unsigned char>>(200,vector<unsigned char>(200));
 
       for(int i=0; i<200; i++)
@@ -51,7 +50,7 @@ class ComportamientoJugador : public Comportamiento{
       
       
 
-     
+     primiter = true;
 
       
 
@@ -74,8 +73,8 @@ class ComportamientoJugador : public Comportamiento{
   
   // Declarar aquí las variables de estado
     vector<vector<unsigned char>> mapaAuxiliar;
-    int fil, col, brujula;
-    int filAux, colAux, brujulaAux;
+    int fil, col;
+    int filAux, colAux, brujula;
 
 
     bool girar_derecha;
@@ -83,7 +82,7 @@ class ComportamientoJugador : public Comportamiento{
     bool protocoloPrioritario;
     bool PrioCentro, PrioIzq, prioDcha;
     bool primeraDeteccionObjetoPrioritario;
-    
+    bool primiter;
     Action ultimaAccion;
     bool bien_situado; //nos dice si conocemos las coordenadas en las que estamos.
 

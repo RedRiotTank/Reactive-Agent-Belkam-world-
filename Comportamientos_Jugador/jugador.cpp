@@ -303,6 +303,9 @@ void ComportamientoJugador::actualizarPosYBruj(Sensores sensores, int &fil, int 
 			brujula = (brujula+1)%4;
 			girar_derecha = (rand()%2==0);
 			break;
+		case actIDLE:
+			girar_derecha = (rand()%2==0);
+			break;
 		}		
 
 	if(sensores.nivel < 2){
@@ -335,6 +338,10 @@ int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
 
 Action ComportamientoJugador::movimientoDefault(Sensores sensores){
 
+
+if(sensores.superficie[2] != '_')
+	return actIDLE;
+
 	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
 		or  (sensores.terreno[2] == 'A' and tengoBikini) 
 		or (sensores.terreno[2] == 'B' and tengoZapas)) ){
@@ -358,12 +365,15 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 		
 		switch (brujula){
 				case 0:	//norte
-
-					if(mapaPotencial[filPotPrio][colPotPrio-1] > mapaPotencial[filPotPrio][filPotPrio])
+					cout << "A";
+					if(mapaPotencial[filPotPrio][colPotPrio-1] > mapaPotencial[filPotPrio][colPotPrio]){
+						cout << "B";
 						resultado = actTURN_L;
-					else if(mapaPotencial[filPotPrio][colPotPrio+1] > mapaPotencial[filPotPrio][filPotPrio])
+					}
+					else if(mapaPotencial[filPotPrio][colPotPrio+1] > mapaPotencial[filPotPrio][colPotPrio])
 						resultado = actTURN_R;
-					else if (mapaPotencial[filPotPrio - 1][colPotPrio] > mapaPotencial[filPotPrio][filPotPrio]){
+					else if (mapaPotencial[filPotPrio - 1][colPotPrio] > mapaPotencial[filPotPrio][colPotPrio]){
+						
 						resultado = actFORWARD;
 						filPotPrio--;
 					}
@@ -371,15 +381,15 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 				break;
 				case 1://este
 					
-					if(mapaPotencial[filPotPrio-1][colPotPrio] > mapaPotencial[filPotPrio][filPotPrio]){
+					if(mapaPotencial[filPotPrio-1][colPotPrio] > mapaPotencial[filPotPrio][colPotPrio]){
 
 						resultado = actTURN_L;
 					}
-					else if(mapaPotencial[filPotPrio+1][colPotPrio] > mapaPotencial[filPotPrio][filPotPrio]){
+					else if(mapaPotencial[filPotPrio+1][colPotPrio] > mapaPotencial[filPotPrio][colPotPrio]){
 						
 						resultado = actTURN_R;
 					}
-					else if (mapaPotencial[filPotPrio][colPotPrio + 1] > mapaPotencial[filPotPrio][filPotPrio]){
+					else if (mapaPotencial[filPotPrio][colPotPrio + 1] > mapaPotencial[filPotPrio][colPotPrio]){
 						
 						resultado = actFORWARD;
 						colPotPrio++;
@@ -388,11 +398,11 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 				break;
 
 				case 2://sur
-					if(mapaPotencial[filPotPrio][colPotPrio-1] > mapaPotencial[filPotPrio][filPotPrio])
+					if(mapaPotencial[filPotPrio][colPotPrio-1] > mapaPotencial[filPotPrio][colPotPrio])
 						resultado = actTURN_R;
-					else if(mapaPotencial[filPotPrio][colPotPrio+1] > mapaPotencial[filPotPrio][filPotPrio])
+					else if(mapaPotencial[filPotPrio][colPotPrio+1] > mapaPotencial[filPotPrio][colPotPrio])
 						resultado = actTURN_L;
-					else if(mapaPotencial[filPotPrio+1] [colPotPrio] > mapaPotencial[filPotPrio][filPotPrio]){
+					else if(mapaPotencial[filPotPrio+1] [colPotPrio] > mapaPotencial[filPotPrio][colPotPrio]){
 						resultado = actFORWARD;
 						filPotPrio++;
 						
@@ -402,15 +412,15 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 
 				case 3://oeste
 					
-					if(mapaPotencial[filPotPrio-1][colPotPrio] > mapaPotencial[filPotPrio][filPotPrio]){
+					if(mapaPotencial[filPotPrio-1][colPotPrio] > mapaPotencial[filPotPrio][colPotPrio]){
 						
 						resultado = actTURN_R;
 					}
-					else if(mapaPotencial[filPotPrio+1][colPotPrio] > mapaPotencial[filPotPrio][filPotPrio]){
+					else if(mapaPotencial[filPotPrio+1][colPotPrio] > mapaPotencial[filPotPrio][colPotPrio]){
 						
 						resultado = actTURN_L;
 					}
-					else if (mapaPotencial[filPotPrio][colPotPrio - 1] > mapaPotencial[filPotPrio][filPotPrio]){
+					else if (mapaPotencial[filPotPrio][colPotPrio - 1] > mapaPotencial[filPotPrio][colPotPrio]){
 						
 						resultado = actFORWARD;
 						colPotPrio--;

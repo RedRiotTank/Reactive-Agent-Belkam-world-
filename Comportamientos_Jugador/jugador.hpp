@@ -9,7 +9,11 @@ using namespace std;
 
 class ComportamientoJugador : public Comportamiento{
   public:
-    void pM(Sensores sensores, vector<vector<unsigned char>> &map, int &fil,int &col) ;
+    void AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter);
+    void ActualizacionMapaYorientacion(Sensores sensores,int &fil, int &col, int &filAux, int &colAux, vector<vector<unsigned char>> &mapaResultado, vector<vector<unsigned char>> &mapaAuxiliar);
+    
+    
+    void PintarMapas(Sensores sensores, vector<vector<unsigned char>> &map, int &fil,int &col) ;
     void resetPrioritario();
     void pasarMapaAuxAmapa(Sensores sensores);
     void actualizarPosYBruj(Sensores sensores,int &fil, int &col);

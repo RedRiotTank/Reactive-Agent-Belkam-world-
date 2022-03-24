@@ -5,6 +5,181 @@
 #include<fstream>
 using namespace std;
 
+void ComportamientoJugador::AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter){
+
+	if(sensores.nivel == 0 && primiter){
+		bien_situado = true;
+		fil = sensores.posF;
+		col = sensores.posC;
+		primiter = false;
+	}
+
+}
+
+//Actualizaciones
+void ComportamientoJugador::ActualizacionMapaYorientacion(Sensores sensores,int &fil, int &col, int &filAux, int &colAux, vector<vector<unsigned char>> &mapaResultado, vector<vector<unsigned char>> &mapaAuxiliar){
+
+	if(bien_situado){
+			actualizarPosYBruj(sensores,fil,col);
+			PintarMapas(sensores,mapaResultado,fil,col);
+		}
+		else{
+			actualizarPosYBruj(sensores,filAux,colAux);
+			PintarMapas(sensores,mapaAuxiliar,filAux,colAux);
+		}
+}
+
+void ComportamientoJugador::actualizarPosYBruj(Sensores sensores, int &fil, int &col){
+	
+		switch(ultimaAccion){
+		case actFORWARD:
+			switch(brujula){
+				case 0: fil--; break;
+				case 1: col++; break;
+				case 2: fil++; break;
+				case 3: col--; break;
+			}
+			break;
+		case actTURN_L:
+			brujula = (brujula+3)%4;
+			girar_derecha = (rand()%2==0);
+			break;
+		case actTURN_R:
+			brujula = (brujula+1)%4;
+			girar_derecha = (rand()%2==0);
+			break;
+		case actIDLE:
+			girar_derecha = (rand()%2==0);
+			break;
+		}		
+
+	if(sensores.nivel < 2){
+
+		brujula = sensores.sentido;
+	}
+	
+
+}
+
+//Pintado de mapas
+void ComportamientoJugador::PintarMapas(Sensores sensores, vector<vector<unsigned char>> &map, int &fil, int &col){
+
+	map[fil][col] = sensores.terreno[0];
+	int sens;
+	
+
+	switch(brujula){
+				case 0: // norte ^
+					sens = 1;
+					for(int i= - 1; i <= 1; i++){
+						
+						map[fil-1][col + i] = sensores.terreno[sens];
+						sens++;
+					}
+					sens = 4;
+					for(int i= -2; i <= 2; i++){
+						map[fil -2][col + i] = sensores.terreno[sens];
+						sens++;
+					}
+					sens = 9;
+					for(int i= -3; i <= 3; i++){
+						map[fil -3][col + i] = sensores.terreno[sens];
+						sens++;
+					}
+				 	break;
+				case 1: //este  -->
+					sens = 1;
+					for(int i= - 1; i <= 1; i++){
+						map[fil + i][col + 1] = sensores.terreno[sens];
+						sens++;
+					}
+					sens = 4;
+					for(int i= -2; i <= 2; i++){
+						map[fil + i][col + 2] = sensores.terreno[sens];
+						sens++;
+					}
+
+					sens = 9;
+					for(int i= -3; i <= 3; i++){
+						map[fil + i][col + 3] = sensores.terreno[sens];
+						sens++;
+					}
+					break;
+				case 2: //sur V
+					sens = 3;
+					for(int i= - 1; i <= 1; i++){
+						
+						map[fil+1][col + i] = sensores.terreno[sens];
+						sens--;
+					}
+					sens = 8;
+					for(int i= -2; i <= 2; i++){
+						map[fil +2][col + i] = sensores.terreno[sens];
+						sens--;
+					}
+					sens = 15;
+					for(int i= -3; i <= 3; i++){
+						map[fil +3][col + i] = sensores.terreno[sens];
+						sens--;
+					}
+					break;
+				case 3: //oeste <--
+					sens = 3;
+					for(int i= - 1; i <= 1; i++){
+						
+						map[fil + i][col - 1] = sensores.terreno[sens];
+						sens--;
+					}
+					sens = 8;
+					for(int i= -2; i <= 2; i++){
+						map[fil + i][col - 2] = sensores.terreno[sens];
+						sens--;
+					}
+					sens = 15;
+					for(int i= -3; i <= 3; i++){
+						map[fil + i][col - 3] = sensores.terreno[sens];
+						sens--;
+					}
+					break;
+			}
+}
+
+void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
+
+	pair<int,int> diferencia;
+	fil = sensores.posF;
+	col = sensores.posC;
+
+
+	diferencia.first = abs(filAux-fil);
+	diferencia.second = abs(colAux-col);
+
+	
+
+	for(int i=0; i<200; i++){
+		for(int j=0; j<200; j++){
+
+			if(mapaAuxiliar[i][j] != '?'){
+				mapaResultado[i-diferencia.first][j - diferencia.second] = mapaAuxiliar[i][j];
+			}
+
+		}
+	}
+
+
+}
+
+//Objetos Prioritarios
+int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
+	//bikini, zapatillas y posicionamiento, RECARGA NO.
+
+	if(!protocoloPrioritario)
+		for(int i=1; i<= 15; i++)
+			if((sensores.terreno[i] == 'K' && !tengoBikini) or (sensores.terreno[i] == 'D' && !tengoZapas) or sensores.terreno[i] == 'G' && !bien_situado )
+				return i;
+	return -1;
+}
+
 void ComportamientoJugador::CrearMapaPotencialPrioritario(Sensores sensores, int numCasilla, int brujula){ //supone que no hay obstaculos como muros o precipicios.
 	int haciaAdelante = 0, haciaLado = 0;
 
@@ -117,203 +292,6 @@ void ComportamientoJugador::CrearMapaPotencialPrioritario(Sensores sensores, int
 	
 	
 	
-	}
-
-void ComportamientoJugador::pM(Sensores sensores, vector<vector<unsigned char>> &map, int &fil, int &col){
-
-	map[fil][col] = sensores.terreno[0];
-	int sens;
-	
-
-	switch(brujula){
-				case 0: // norte ^
-					sens = 1;
-					for(int i= - 1; i <= 1; i++){
-						
-						map[fil-1][col + i] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 4;
-					for(int i= -2; i <= 2; i++){
-						map[fil -2][col + i] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 9;
-					for(int i= -3; i <= 3; i++){
-						map[fil -3][col + i] = sensores.terreno[sens];
-						sens++;
-					}
-				 	break;
-				case 1: //este  -->
-					sens = 1;
-					for(int i= - 1; i <= 1; i++){
-						map[fil + i][col + 1] = sensores.terreno[sens];
-						sens++;
-					}
-					sens = 4;
-					for(int i= -2; i <= 2; i++){
-						map[fil + i][col + 2] = sensores.terreno[sens];
-						sens++;
-					}
-
-					sens = 9;
-					for(int i= -3; i <= 3; i++){
-						map[fil + i][col + 3] = sensores.terreno[sens];
-						sens++;
-					}
-					break;
-				case 2: //sur V
-					sens = 3;
-					for(int i= - 1; i <= 1; i++){
-						
-						map[fil+1][col + i] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 8;
-					for(int i= -2; i <= 2; i++){
-						map[fil +2][col + i] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 15;
-					for(int i= -3; i <= 3; i++){
-						map[fil +3][col + i] = sensores.terreno[sens];
-						sens--;
-					}
-					break;
-				case 3: //oeste <--
-					sens = 3;
-					for(int i= - 1; i <= 1; i++){
-						
-						map[fil + i][col - 1] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 8;
-					for(int i= -2; i <= 2; i++){
-						map[fil + i][col - 2] = sensores.terreno[sens];
-						sens--;
-					}
-					sens = 15;
-					for(int i= -3; i <= 3; i++){
-						map[fil + i][col - 3] = sensores.terreno[sens];
-						sens--;
-					}
-					break;
-			}
-}
-
-
-void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
-
-pair<int,int> diferencia;
-fil = sensores.posF;
-col = sensores.posC;
-
-
-diferencia.first = abs(filAux-fil);
-diferencia.second = abs(colAux-col);
-
-//cout << "la diferencia es: " + diferencia.first  + diferencia.second << endl;
-
-for(int i=0; i<200; i++){
-	for(int j=0; j<200; j++){
-
-		if(mapaAuxiliar[i][j] != '?'){
-			mapaResultado[i-diferencia.first][j - diferencia.second] = mapaAuxiliar[i][j];
-		}
-
-	}
-}
-
-
-}
-
-void ComportamientoJugador::crearArchivoMatrizAux(Sensores sensores){
-
-	//-----
-		ofstream archivo;
-		archivo.open("matrizAuxiliar.txt",ios::out);
-		if(archivo.fail()){
-			cout << "ERROR AL CREAR EL ARCHIVO";
-			exit(1);
-		} else {
-
-
-			
-			for(int i=0; i<200; i++){
-				for(int j=0; j<200; j++){
-					archivo<<mapaAuxiliar[i][j] << " ";
-				}
-				archivo << endl;
-			}
-
-
-			
-
-		}
-		archivo.close();
-
-	//-----
-}
-
-
-void ComportamientoJugador::crearArchivoMapaPot(Sensores sensores){
-
-	//-----
-		ofstream archivo;
-		archivo.open("mapapotencial.txt",ios::out);
-		if(archivo.fail()){
-			cout << "ERROR AL CREAR EL ARCHIVO";
-			exit(1);
-		} else {
-
-
-			
-			for(int i=0; i<9; i++){
-				for(int j=0; j<9; j++){
-					archivo<<mapaPotencial[i][j] << " ";
-				}
-				archivo << endl;
-			}
-
-
-			
-
-		}
-		archivo.close();
-
-	//-----
-}
-
-void ComportamientoJugador::actualizarPosYBruj(Sensores sensores, int &fil, int &col){
-	
-		switch(ultimaAccion){
-		case actFORWARD:
-			switch(brujula){
-				case 0: fil--; break;
-				case 1: col++; break;
-				case 2: fil++; break;
-				case 3: col--; break;
-			}
-			break;
-		case actTURN_L:
-			brujula = (brujula+3)%4;
-			girar_derecha = (rand()%2==0);
-			break;
-		case actTURN_R:
-			brujula = (brujula+1)%4;
-			girar_derecha = (rand()%2==0);
-			break;
-		case actIDLE:
-			girar_derecha = (rand()%2==0);
-			break;
-		}		
-
-	if(sensores.nivel < 2){
-
-		brujula = sensores.sentido;
-	}
-	
-
 }
 
 void ComportamientoJugador::resetPrioritario(){
@@ -326,16 +304,8 @@ void ComportamientoJugador::resetPrioritario(){
 
 }
 
-int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
-	//bikini, zapatillas y posicionamiento, RECARGA NO.
 
-	if(!protocoloPrioritario)
-		for(int i=1; i<= 15; i++)
-			if((sensores.terreno[i] == 'K' && !tengoBikini) or (sensores.terreno[i] == 'D' && !tengoZapas) or sensores.terreno[i] == 'G' && !bien_situado )
-				return i;
-	return -1;
-}
-
+//Movimientos
 Action ComportamientoJugador::movimientoDefault(Sensores sensores){
 
 
@@ -365,9 +335,9 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 		
 		switch (brujula){
 				case 0:	//norte
-					cout << "A";
+					
 					if(mapaPotencial[filPotPrio][colPotPrio-1] > mapaPotencial[filPotPrio][colPotPrio]){
-						cout << "B";
+						
 						resultado = actTURN_L;
 					}
 					else if(mapaPotencial[filPotPrio][colPotPrio+1] > mapaPotencial[filPotPrio][colPotPrio])
@@ -435,35 +405,77 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 
 }
 
+//Creación de archivos auxiliares:
+
+void ComportamientoJugador::crearArchivoMatrizAux(Sensores sensores){
+
+	//-----
+		ofstream archivo;
+		archivo.open("matrizAuxiliar.txt",ios::out);
+		if(archivo.fail()){
+			cout << "ERROR AL CREAR EL ARCHIVO";
+			exit(1);
+		} else {
+
+
+			
+			for(int i=0; i<200; i++){
+				for(int j=0; j<200; j++){
+					archivo<<mapaAuxiliar[i][j] << " ";
+				}
+				archivo << endl;
+			}
+
+
+			
+
+		}
+		archivo.close();
+
+	//-----
+}
+
+void ComportamientoJugador::crearArchivoMapaPot(Sensores sensores){
+
+	//-----
+		ofstream archivo;
+		archivo.open("mapapotencial.txt",ios::out);
+		if(archivo.fail()){
+			cout << "ERROR AL CREAR EL ARCHIVO";
+			exit(1);
+		} else {
+
+
+			
+			for(int i=0; i<9; i++){
+				for(int j=0; j<9; j++){
+					archivo<<mapaPotencial[i][j] << " ";
+				}
+				archivo << endl;
+			}
+
+
+			
+
+		}
+		archivo.close();
+
+	//-----
+}
+
 
 Action ComportamientoJugador::think(Sensores sensores){
 
-	if(sensores.nivel == 0 && primiter){
-		bien_situado = true;
-		fil = sensores.posF;
-		col = sensores.posC;
-		primiter = false;
-	}
-
 	Action accion = actIDLE;
+
+	AjustesPrimeraIteracion(sensores, bien_situado, fil,col,primiter);
 	
-	if(bien_situado){
-		
-		actualizarPosYBruj(sensores,fil,col);
-		pM(sensores,mapaResultado,fil,col);
+	//Actualización de mapas y orientación.
+	ActualizacionMapaYorientacion(sensores,fil,col,filAux,colAux,mapaResultado,mapaAuxiliar);
 
-	}
-	else{
-		
-		actualizarPosYBruj(sensores,filAux,colAux);
-		pM(sensores,mapaAuxiliar,filAux,colAux);
-	}
+	//crearArchivoMatrizAux(sensores);
 
-
-	crearArchivoMatrizAux(sensores);
-
-	//comprobar si he cogido bikini o zapas o punto de control:
-
+	//Comprobación y ajuste de casillas K,D o G.
 	if(sensores.terreno[0] == 'D')
 		tengoZapas = true;
 	
@@ -476,14 +488,12 @@ Action ComportamientoJugador::think(Sensores sensores){
 		bien_situado = true;
 	}
 
-	//desactivar el protocolo prioritario:
-
 	if(sensores.terreno[0] == 'K' || sensores.terreno[0] == 'G' || sensores.terreno[0] == 'D')
 		resetPrioritario();
 
 
 
-	//Decidir la nueva accion
+	//Detección e iniciación del protocolo prioritario.
 
 	if(!protocoloPrioritario)
 		casillaSensorPrioritaria = detectarObjetoPrioritario(sensores);
@@ -491,24 +501,19 @@ Action ComportamientoJugador::think(Sensores sensores){
 	if(casillaSensorPrioritaria != -1 && !protocoloPrioritario){
 		protocoloPrioritario = true;
 		CrearMapaPotencialPrioritario(sensores,casillaSensorPrioritaria,brujula);
-		crearArchivoMapaPot(sensores);
+		
 
 	}
 
-	crearArchivoMapaPot(sensores);
+	//crearArchivoMapaPot(sensores);
 
-	
+	//Selección de movimiento.
 
-	if(protocoloPrioritario){
-			cout << "P" << endl;
+	if(protocoloPrioritario)
 		accion = movimientoPrioritario(sensores,brujula);	//seguir mapa de potencial en vez de mapa normal.
-	}
-	 else {
-		cout << "N" << endl;
-		accion = movimientoDefault(sensores);
-
-	 }
 	
+	 else 
+		accion = movimientoDefault(sensores);
 
 //----------------------------------------------------------------------
 	// Determinar el efecto de la ultima accion enviada

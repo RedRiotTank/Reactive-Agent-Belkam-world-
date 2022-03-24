@@ -36,14 +36,11 @@ class ComportamientoJugador : public Comportamiento{
       
       girar_derecha = false;
       
-
       //mapa
       fil = col = 99;
       brujula = 0;    //(0 norte, 1 este, 2 sur y 3 oeste)
       bien_situado = false;
 
-
-      
       //mapa relativo
 
       filAux = colAux = 99;
@@ -55,7 +52,7 @@ class ComportamientoJugador : public Comportamiento{
           mapaAuxiliar[i][j] = '?';
       
 
-      //mapa potencial
+      //mapa potencial prioritario
      
       filPotPrio = colPotPrio = 4; //en mitad del mapa, para que haya espacio de sobra.
 
@@ -65,19 +62,10 @@ class ComportamientoJugador : public Comportamiento{
         for(int j=0; j<9; j++)
           mapaPotencial[i][j] = 0;
       
-
-
-
-
-
      primiter = true;
-
-      
 
       //movimiento
       protocoloPrioritario = false;
-      PrioCentro = PrioIzq = prioDcha = false;
-      primeraDeteccionObjetoPrioritario = false;
       
     }
 
@@ -102,12 +90,9 @@ class ComportamientoJugador : public Comportamiento{
     bool girar_derecha;
     bool tengoZapas, tengoBikini;
     bool protocoloPrioritario;
-    bool PrioCentro, PrioIzq, prioDcha;
-    bool primeraDeteccionObjetoPrioritario;
     bool primiter;
     Action ultimaAccion;
-    bool seHaGiradoPorPrioridad = false;
-    bool bien_situado; //nos dice si conocemos las coordenadas en las que estamos.
+    bool bien_situado;
 
 };
 

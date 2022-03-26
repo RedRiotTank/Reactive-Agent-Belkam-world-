@@ -186,9 +186,9 @@ void ComportamientoJugador::CrearMapaProtExp(){
 	//sur
 	
 	for(int i = fil+1; i<mapaResultado.size(); i++){
-		cout << "A"<< i<<endl;
+		
 		for(int j = col-2; j<=col+2; j++){	//me he asegurado de que hay precipicios en los bordes, no da core.
-			cout << "B"<<j<<endl;
+			
 			if(mapaResultado[i][j] == '?'){
 				incSur++;
 				
@@ -227,10 +227,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 		}
 
 
-		cout << objX << endl;
-		cout << objY << endl;
-		cout << fil << endl;
-		cout << col << endl;
+	
 		
 		//radiales verticales:
 		int puntos = fil - objX;//distancia a objetivo
@@ -238,7 +235,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 		int contador = 0;
 			//objetivo hacia el jugador.
 			
-			for(int i=objX; i != fil-1; i++){
+			for(int i=objX; i != fil; i++){
 				mapaPotencialExp[i][col] = puntos - contador;
 				contador++;
 			}
@@ -288,10 +285,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 
 
 
-		cout << objX << endl;
-		cout << objY << endl;
-		cout << fil << endl;
-		cout << col << endl;
+	
 		
 		//radiales verticales:
 		int puntos = objX - fil; //distancia a objetivo
@@ -299,7 +293,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 		int contador = 0;
 			//objetivo hacia el jugador.
 			
-			for(int i=objX; i != fil+1; i--){
+			for(int i=objX; i != fil; i--){
 				mapaPotencialExp[i][objY] = puntos - contador;
 				contador++;
 			}
@@ -342,10 +336,6 @@ void ComportamientoJugador::CrearMapaProtExp(){
 			}
 
 		
-		cout << objX << endl;
-		cout << objY << endl;
-		cout << fil << endl;
-		cout << col << endl;
 		
 		//radiales horizontales:
 		int puntos = objY - col;//distancia a objetivo
@@ -353,7 +343,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 		int contador = 0;
 			//objetivo hacia el jugador.
 			
-			for(int i=objY; i != col+1; i--){
+			for(int i=objY; i != col; i--){
 				mapaPotencialExp[objX][i] = puntos - contador;
 				contador++;
 			}
@@ -398,10 +388,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 				}
 			}
 
-		cout << objX << endl;
-		cout << objY << endl;
-		cout << fil << endl;
-		cout << col << endl;
+	
 		
 		//radiales horizontales:
 		int puntos = col - objY;//distancia a objetivo
@@ -409,7 +396,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 		int contador = 0;
 			//objetivo hacia el jugador.
 			
-			for(int i=objY; i != col-1; i++){
+			for(int i=objY; i != col; i++){
 				mapaPotencialExp[objX][i] = puntos - contador;
 				contador++;
 			}
@@ -421,7 +408,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 				mapaPotencialExp[objX][i] = puntos - contador;
 				contador++;
 			}
-			cout<<"A"<<endl;
+			
 			contador = 0;
 		//radiales verticales:
 			//arriba
@@ -449,8 +436,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 //Diagonales superiores:
 	int contador = 1;
 	int contadorpotencial = mapaPotencialExp[objX][objY] - 2;
-	cout <<objX << "X"<<endl;
-	cout<<objY << "Y"<<endl;
+	
 	
 	for(int i=objX-1; i>=0; i--){
 		if(objY-contador >= 0)
@@ -719,8 +705,122 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 
 
 Action ComportamientoJugador::movimientoPotExp(){
+	bool norte = false, sur = false, este = false, oeste = false;
+	int max = mapaPotencialExp[fil][col];
+	cout << fil << endl;
+	cout << col <<endl;
+	cout<<mapaPotencialExp[fil][col]<<endl;
 
-	
+	if(fil != 0){
+
+		if(mapaPotencialExp[fil-1][col] > max){
+		cout<< "A" <<endl;
+		norte = true;
+		max = mapaPotencialExp[fil-1][col];
+		}
+	}
+
+	if(fil != mapaPotencialExp.size()){
+
+		if(mapaPotencialExp[fil+1][col] > max){
+			cout<< "B" <<endl;
+		sur = true;
+		norte = false;
+		max = mapaPotencialExp[fil+1][col];
+		}
+	}
+	if(col != mapaPotencialExp.size()){
+		if(mapaPotencialExp[fil][col+1] > max){
+			cout<< "C" <<endl;
+			este = true;
+			sur = false;
+			norte = false;
+			max = mapaPotencialExp[fil][col+1];
+		}
+	}
+
+	if(col != 0){
+
+		if(mapaPotencialExp[fil][col-1] > max){
+			cout<< "D" <<endl;
+		oeste = true;
+		este = false;
+		sur = false;
+		norte = false;
+		max = mapaPotencialExp[fil][col-1];
+		}	
+	}
+/*
+	if(norte) cout << "norte" <<endl;
+	if(sur) cout << "sur" <<endl;
+	if(este) cout << "este" <<endl;
+	if(oeste) cout << "oeste" <<endl;
+*/
+
+	if(norte && brujula == 0)
+		return actFORWARD;
+	else if(sur && brujula == 2)
+		return actFORWARD;
+	else if(este && brujula == 1)
+		return actFORWARD;
+	else if(oeste && brujula == 3)
+		return actFORWARD;
+	else {
+		cout <<fil<<endl;
+		cout <<col<<endl;
+		switch (brujula)
+		{
+		case 0:
+			if(oeste)
+				return actTURN_L;
+			
+			if(este)
+				return actTURN_R;
+
+			if(sur)
+				return actTURN_L;
+
+			break;
+		
+		case 1:
+
+			if(norte)
+				return actTURN_L;
+			
+			if(oeste)
+				return actTURN_R;
+
+			if(sur)
+				return actTURN_R;
+
+			break;
+		case 2:
+
+			if(oeste)
+				return actTURN_R;
+			
+			if(este)
+				return actTURN_L;
+
+			if(norte)
+				return actTURN_L;
+		break;
+
+		case 3:
+
+		if(norte)
+				return actTURN_R;
+			
+			if(este)
+				return actTURN_R;
+
+			if(sur)
+				return actTURN_L;
+		break;
+
+		}
+	}
+
 
 
 }
@@ -864,16 +964,17 @@ Action ComportamientoJugador::think(Sensores sensores){
 	//Selección de movimiento.
 
 	if(protocoloPrioritario){
-		//cout << "P" << endl;
+		cout << "P" << endl;
 		accion = movimientoPrioritario(sensores,brujula);	//seguir mapa de potencial en vez de mapa normal.
 		
 	}
 	else if(protocoloEXP){
-		//cout << "E" << endl;
+		cout << "E" << endl;
 		accion = movimientoPotExp();
+		
 	}
 	else {
-		//cout << "D" << endl;
+		cout << "D" << endl;
 		accion = movimientoDefault(sensores);
 }
 

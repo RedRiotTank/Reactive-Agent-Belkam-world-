@@ -8,13 +8,18 @@
 using namespace std;
 
 class ComportamientoJugador : public Comportamiento{
+  struct Posicion{
+    int posX, posY;
+  };
   public:
+  
+
     void AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter);
     void ActualizacionMapaYorientacion(Sensores sensores,int &fil, int &col, int &filAux, int &colAux, vector<vector<unsigned char>> &mapaResultado, vector<vector<unsigned char>> &mapaAuxiliar);
     
     
     void PintarMapas(Sensores sensores, vector<vector<unsigned char>> &map, int &fil,int &col) ;
-    void CrearMapaProtExp();
+    Posicion CrearMapaProtExp();
     void resetPrioritario();
     void pasarMapaAuxAmapa(Sensores sensores);
     void actualizarPosYBruj(Sensores sensores,int &fil, int &col);
@@ -32,6 +37,9 @@ class ComportamientoJugador : public Comportamiento{
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
       // Dar el valor inicial a las variables de estado
+      
+      objetivoExplor.posX = -1;
+      objetivoExplor.posY = -1;
       casillaSensorPrioritaria = -1;
       ultimaAccion = actIDLE;
       tengoZapas = tengoBikini = false;
@@ -104,6 +112,9 @@ class ComportamientoJugador : public Comportamiento{
     bool primiter;
     Action ultimaAccion;
     bool bien_situado;
+    Posicion objetivoExplor;
+
+    
 
 };
 

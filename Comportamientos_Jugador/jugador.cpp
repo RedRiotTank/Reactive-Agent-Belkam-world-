@@ -169,10 +169,12 @@ void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
 
 }
 
-void ComportamientoJugador::CrearMapaProtExp(){
+ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(){
 
 	int incNorte = 0, incSur = 0, incEste = 0, incOeste = 0;
 	int objX=0, objY=0;
+
+	Posicion ObjetivoExplor;
 
 	
 	//norte:
@@ -215,17 +217,25 @@ void ComportamientoJugador::CrearMapaProtExp(){
 	
 
 
+	if(incNorte == 0 && incSur == 0 && incEste == 0 && incOeste == 0){
+		objetivoExplor.posX = objetivoExplor.posY = -1;
+
+		return objetivoExplor;
+	} else {
+		
 	mapaPotencialExp[fil][col] = -3;
 	
-	if(incSur < incNorte  and incEste < incNorte and incOeste < incNorte){	//norte
+	
 
+	if(incSur < incNorte  and incEste < incNorte and incOeste < incNorte){	//norte
+	
 		for(int i=fil; i>=0; i--){
-			if(mapaResultado[i][col] == '?'){
+			
 				objX=i;
 				objY=col;
-			}
+			
 		}
-
+		
 
 	
 		
@@ -267,23 +277,25 @@ void ComportamientoJugador::CrearMapaProtExp(){
 			contador = 0;
 
 
-
+	
 
 
 		
 	}
 
 	else if(incNorte < incSur and incEste < incSur and incOeste < incSur){ //sur
-
+		
 		for(int i=fil; i<mapaResultado.size(); i++){
-				if(mapaResultado[i][col] == '?'){
 					objX=i;
 					objY=col;
-				}
+				
 			}
-
-
-
+		/*
+			cout <<"----"<<endl;
+			cout << fil << " " << col<<endl;
+			cout << objX << " " << objY<<endl;
+			cout <<"----"<<endl;
+*/
 
 	
 		
@@ -294,10 +306,12 @@ void ComportamientoJugador::CrearMapaProtExp(){
 			//objetivo hacia el jugador.
 			
 			for(int i=objX; i != fil; i--){
+				
 				mapaPotencialExp[i][objY] = puntos - contador;
+				
 				contador++;
 			}
-			
+			cout << "D"<<endl;
 			contador = 0;
 			//objetivo hacia abajo:
 			
@@ -307,6 +321,7 @@ void ComportamientoJugador::CrearMapaProtExp(){
 			}
 			
 			contador = 0;
+			
 		//radiales Horizontales:
 			//a izq
 			
@@ -323,16 +338,16 @@ void ComportamientoJugador::CrearMapaProtExp(){
 			}
 			
 			contador = 0;
-
+		
 
 
 	}
 	else if(incNorte < incEste and incSur < incEste and incOeste < incEste) {//este
-		for(int j=col; j<=mapaResultado.size(); j++){
-				if(mapaResultado[fil][j] == '?'){
+		for(int j=col; j<mapaResultado.size(); j++){
+				
 					objX=fil;
 					objY=j;
-				}
+				
 			}
 
 		
@@ -375,17 +390,17 @@ void ComportamientoJugador::CrearMapaProtExp(){
 			contador = 0;
 
 
-
+	
 	}
 
 	
 	else if(incNorte<incOeste and incSur<incOeste and incEste < incOeste){//oeste
 		
 		for(int j=col; j>=0; j--){
-				if(mapaResultado[fil][j] == '?'){
+				
 					objX=fil;
 					objY=j;
-				}
+				
 			}
 
 	
@@ -465,7 +480,11 @@ void ComportamientoJugador::CrearMapaProtExp(){
 	}
 
 
+	ObjetivoExplor.posX = objX;
+	ObjetivoExplor.posY = objY;
 
+	return ObjetivoExplor;
+	}
 }
 //Objetos Prioritarios
 int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
@@ -707,14 +726,14 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 Action ComportamientoJugador::movimientoPotExp(){
 	bool norte = false, sur = false, este = false, oeste = false;
 	int max = mapaPotencialExp[fil][col];
-	cout << fil << endl;
-	cout << col <<endl;
-	cout<<mapaPotencialExp[fil][col]<<endl;
+	//cout << fil << endl;
+	//cout << col <<endl;
+	//cout<<mapaPotencialExp[fil][col]<<endl;
 
 	if(fil != 0){
 
 		if(mapaPotencialExp[fil-1][col] > max){
-		cout<< "A" <<endl;
+		//cout<< "A" <<endl;
 		norte = true;
 		max = mapaPotencialExp[fil-1][col];
 		}
@@ -723,7 +742,7 @@ Action ComportamientoJugador::movimientoPotExp(){
 	if(fil != mapaPotencialExp.size()){
 
 		if(mapaPotencialExp[fil+1][col] > max){
-			cout<< "B" <<endl;
+			//cout<< "B" <<endl;
 		sur = true;
 		norte = false;
 		max = mapaPotencialExp[fil+1][col];
@@ -731,7 +750,7 @@ Action ComportamientoJugador::movimientoPotExp(){
 	}
 	if(col != mapaPotencialExp.size()){
 		if(mapaPotencialExp[fil][col+1] > max){
-			cout<< "C" <<endl;
+			//cout<< "C" <<endl;
 			este = true;
 			sur = false;
 			norte = false;
@@ -742,7 +761,7 @@ Action ComportamientoJugador::movimientoPotExp(){
 	if(col != 0){
 
 		if(mapaPotencialExp[fil][col-1] > max){
-			cout<< "D" <<endl;
+			//<< "D" <<endl;
 		oeste = true;
 		este = false;
 		sur = false;
@@ -766,8 +785,8 @@ Action ComportamientoJugador::movimientoPotExp(){
 	else if(oeste && brujula == 3)
 		return actFORWARD;
 	else {
-		cout <<fil<<endl;
-		cout <<col<<endl;
+		//cout <<fil<<endl;
+		//cout <<col<<endl;
 		switch (brujula)
 		{
 		case 0:
@@ -953,23 +972,117 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP){
 		protocoloEXP = true;
-		CrearMapaProtExp();
+		
+		objetivoExplor = CrearMapaProtExp();
+		cout<<"mapaexplor ----"<<endl;
+cout <<"x: " << objetivoExplor.posX<<endl;
+cout <<"y: " << objetivoExplor.posY<<endl;
+		cout<<"----"<<endl;
+		
+		if(objetivoExplor.posX == -1 && objetivoExplor.posY == -1){
+			
+			protocoloEXP = false;
+		}
+			
 		crearArchivoMapaPotExp();
 		
-
 	}
 
+
+	//Comprobamos que el objetivo de exploración no sea innacesible:
+	
+	if(protocoloEXP && objetivoExplor.posX != -1 && objetivoExplor.posY != -1){
+
+		int caso;
+
+		if(col == objetivoExplor.posY && fil > objetivoExplor.posX){
+			caso = 0;
+		} else if(col == objetivoExplor.posY && fil < objetivoExplor.posX){
+			caso = 2;
+		} else if(fil == objetivoExplor.posX && col < objetivoExplor.posY){
+			caso = 1;
+		} else {
+			caso = 3;
+		}
+		
+		
+		switch (caso)
+		{
+		case 0:
+			if(fil - objetivoExplor.posX <= 3){
+				
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P'){
+					objetivoExplor.posX++;
+				}
+			}
+			break;
+		
+		case 1:
+			
+			if(objetivoExplor.posY - col  <= 3){
+				
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P'){
+					objetivoExplor.posY--;
+				}
+			}
+
+			
+
+			break;
+		case 2:
+				
+			if(objetivoExplor.posX  - fil<= 3){
+			
+				
+
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P'){
+					objetivoExplor.posX--;
+					
+				}
+			}
+			break;
+		case 3:
+
+			if(col - objetivoExplor.posY  <= 3){
+			
+		
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P'){
+					objetivoExplor.posY++;
+				}
+		
+			}
+			break;
+		}
+		
+
+		if(fil == objetivoExplor.posX && col == objetivoExplor.posY){
+			protocoloEXP = false;
+			objetivoExplor.posX = -1;
+			objetivoExplor.posY = -1;
+
+			//mapa potencial exploracion
+      		mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+
+      		for(int i=0; i<mapaResultado.size(); i++)
+        		for(int j=0; j<mapaResultado.size(); j++)
+          			mapaPotencialExp[i][j] = 0;
+		}
+	}
+	
 	//crearArchivoMapaPot(sensores);
 
 	//Selección de movimiento.
 
 	if(protocoloPrioritario){
+		
 		cout << "P" << endl;
 		accion = movimientoPrioritario(sensores,brujula);	//seguir mapa de potencial en vez de mapa normal.
 		
 	}
 	else if(protocoloEXP){
 		cout << "E" << endl;
+		cout<<objetivoExplor.posX << " " << objetivoExplor.posY<<endl;
+		
 		accion = movimientoPotExp();
 		
 	}

@@ -14,18 +14,20 @@ class ComportamientoJugador : public Comportamiento{
     
     
     void PintarMapas(Sensores sensores, vector<vector<unsigned char>> &map, int &fil,int &col) ;
+    void CrearMapaProtExp();
     void resetPrioritario();
     void pasarMapaAuxAmapa(Sensores sensores);
     void actualizarPosYBruj(Sensores sensores,int &fil, int &col);
     int detectarObjetoPrioritario(Sensores sensores);  
     void crearArchivoMapaPot(Sensores sensores);
+    void crearArchivoMapaPotExp();
 
     void CrearMapaPotencialPrioritario(Sensores sensores, int numCasilla,int brujula);
     
     void crearArchivoMatrizAux(Sensores sensores);
     Action movimientoDefault(Sensores sensores);
     Action movimientoPrioritario(Sensores sensores, int brujula);
-
+    Action movimientoPotExp();
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
@@ -33,7 +35,7 @@ class ComportamientoJugador : public Comportamiento{
       casillaSensorPrioritaria = -1;
       ultimaAccion = actIDLE;
       tengoZapas = tengoBikini = false;
-      
+      protocoloEXP = false;
       girar_derecha = false;
       
       //mapa
@@ -64,6 +66,14 @@ class ComportamientoJugador : public Comportamiento{
       
      primiter = true;
 
+
+      //mapa potencial exploracion
+      mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+
+      for(int i=0; i<mapaResultado.size(); i++)
+        for(int j=0; j<mapaResultado.size(); j++)
+          mapaPotencialExp[i][j] = 0;
+
       //movimiento
       protocoloPrioritario = false;
       
@@ -82,6 +92,7 @@ class ComportamientoJugador : public Comportamiento{
   // Declarar aquí las variables de estado
     vector<vector<unsigned char>> mapaAuxiliar;
     vector<vector<int>> mapaPotencial;
+    vector<vector<int>> mapaPotencialExp;
     int fil, col;
     int filPotPrio,colPotPrio;
     int filAux, colAux, brujula;
@@ -89,7 +100,7 @@ class ComportamientoJugador : public Comportamiento{
 
     bool girar_derecha;
     bool tengoZapas, tengoBikini;
-    bool protocoloPrioritario;
+    bool protocoloPrioritario, protocoloEXP;
     bool primiter;
     Action ultimaAccion;
     bool bien_situado;

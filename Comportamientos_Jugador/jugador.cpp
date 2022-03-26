@@ -169,6 +169,318 @@ void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
 
 }
 
+void ComportamientoJugador::CrearMapaProtExp(){
+
+	int incNorte = 0, incSur = 0, incEste = 0, incOeste = 0;
+	int objX=0, objY=0;
+
+	
+	//norte:
+	for(int i = fil-1; i>=0; i--){
+		for(int j = col-2; j<=col+2; j++){	//me he asegurado de que hay precipicios en los bordes, no da core.
+			if(mapaResultado[i][j] == '?')
+				incNorte++;
+		}
+	}
+	
+	//sur
+	
+	for(int i = fil+1; i<mapaResultado.size(); i++){
+		cout << "A"<< i<<endl;
+		for(int j = col-2; j<=col+2; j++){	//me he asegurado de que hay precipicios en los bordes, no da core.
+			cout << "B"<<j<<endl;
+			if(mapaResultado[i][j] == '?'){
+				incSur++;
+				
+			}
+		}
+	}
+	
+	
+	//este ->
+	for(int j = col+1; j<mapaResultado.size(); j++){
+		for(int i = fil-2; i<=fil+2; i++){	//me he asegurado de que hay precipicios en los bordes, no da core.
+			if(mapaResultado[i][j] == '?')
+				incEste++;
+		}
+	}
+
+	//oeste <-
+	for(int j = col-1; j>=0; j--){
+		for(int i = fil-2; i<=fil+2; i++){	//me he asegurado de que hay precipicios en los bordes, no da core.
+			if(mapaResultado[i][j] == '?')
+				incOeste++;
+		}
+	}
+	
+
+
+	mapaPotencialExp[fil][col] = -3;
+	
+	if(incSur < incNorte  and incEste < incNorte and incOeste < incNorte){	//norte
+
+		for(int i=fil; i>=0; i--){
+			if(mapaResultado[i][col] == '?'){
+				objX=i;
+				objY=col;
+			}
+		}
+
+
+		cout << objX << endl;
+		cout << objY << endl;
+		cout << fil << endl;
+		cout << col << endl;
+		
+		//radiales verticales:
+		int puntos = fil - objX;//distancia a objetivo
+		puntos = puntos*2;
+		int contador = 0;
+			//objetivo hacia el jugador.
+			
+			for(int i=objX; i != fil-1; i++){
+				mapaPotencialExp[i][col] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//objetivo hacia arriba:
+			
+			for(int i=objX; i != 0; i--){
+				mapaPotencialExp[i][col] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+		//radiales Horizontales:
+			//a izq
+			
+			for(int j=objY; j >=0; j--){
+				mapaPotencialExp[objX][j] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//a dcha
+			for(int j=objY; j <=mapaResultado.size(); j++){
+				mapaPotencialExp[objX][j] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+
+
+
+
+
+		
+	}
+
+	else if(incNorte < incSur and incEste < incSur and incOeste < incSur){ //sur
+
+		for(int i=fil; i<mapaResultado.size(); i++){
+				if(mapaResultado[i][col] == '?'){
+					objX=i;
+					objY=col;
+				}
+			}
+
+
+
+
+		cout << objX << endl;
+		cout << objY << endl;
+		cout << fil << endl;
+		cout << col << endl;
+		
+		//radiales verticales:
+		int puntos = objX - fil; //distancia a objetivo
+		puntos = puntos*2;
+		int contador = 0;
+			//objetivo hacia el jugador.
+			
+			for(int i=objX; i != fil+1; i--){
+				mapaPotencialExp[i][objY] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//objetivo hacia abajo:
+			
+			for(int i=objX; i != mapaResultado.size(); i++){
+				mapaPotencialExp[i][objY] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+		//radiales Horizontales:
+			//a izq
+			
+			for(int j=objY; j >=0; j--){
+				mapaPotencialExp[objX][j] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//a dcha
+			for(int j=objY; j <mapaResultado.size(); j++){
+				mapaPotencialExp[objX][j] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+
+
+
+	}
+	else if(incNorte < incEste and incSur < incEste and incOeste < incEste) {//este
+		for(int j=col; j<=mapaResultado.size(); j++){
+				if(mapaResultado[fil][j] == '?'){
+					objX=fil;
+					objY=j;
+				}
+			}
+
+		
+		cout << objX << endl;
+		cout << objY << endl;
+		cout << fil << endl;
+		cout << col << endl;
+		
+		//radiales horizontales:
+		int puntos = objY - col;//distancia a objetivo
+		puntos = puntos*2;
+		int contador = 0;
+			//objetivo hacia el jugador.
+			
+			for(int i=objY; i != col+1; i--){
+				mapaPotencialExp[objX][i] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//objetivo hacia dcha:
+			
+			for(int i=objY; i < mapaResultado.size(); i++){
+				mapaPotencialExp[objX][i] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+		//radiales verticales:
+			//arriba
+			
+			for(int j=objX; j >=0; j--){
+				mapaPotencialExp[j][objY] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//abajo
+			for(int j=objX; j <mapaResultado.size(); j++){
+				mapaPotencialExp[j][objY] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+
+
+
+	}
+
+	
+	else if(incNorte<incOeste and incSur<incOeste and incEste < incOeste){//oeste
+		
+		for(int j=col; j>=0; j--){
+				if(mapaResultado[fil][j] == '?'){
+					objX=fil;
+					objY=j;
+				}
+			}
+
+		cout << objX << endl;
+		cout << objY << endl;
+		cout << fil << endl;
+		cout << col << endl;
+		
+		//radiales horizontales:
+		int puntos = col - objY;//distancia a objetivo
+		puntos = puntos*2;
+		int contador = 0;
+			//objetivo hacia el jugador.
+			
+			for(int i=objY; i != col-1; i++){
+				mapaPotencialExp[objX][i] = puntos - contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//objetivo hacia izq:
+			
+			for(int i=objY; i >= 0; i--){
+				mapaPotencialExp[objX][i] = puntos - contador;
+				contador++;
+			}
+			cout<<"A"<<endl;
+			contador = 0;
+		//radiales verticales:
+			//arriba
+			
+			for(int j=objX; j >=0; j--){
+				mapaPotencialExp[j][objY] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+			//abajo
+			for(int j=objX; j <mapaResultado.size(); j++){
+				mapaPotencialExp[j][objY] = puntos-contador;
+				contador++;
+			}
+			
+			contador = 0;
+
+
+
+
+	}
+		
+	
+//Diagonales superiores:
+	int contador = 1;
+	int contadorpotencial = mapaPotencialExp[objX][objY] - 2;
+	cout <<objX << "X"<<endl;
+	cout<<objY << "Y"<<endl;
+	
+	for(int i=objX-1; i>=0; i--){
+		if(objY-contador >= 0)
+			mapaPotencialExp[i][objY-contador] = contadorpotencial;
+		if(objY + contador < mapaResultado.size())
+			mapaPotencialExp[i][objY+contador] = contadorpotencial;
+		contador++;
+		contadorpotencial = contadorpotencial - 2;
+	}
+
+	
+	
+
+	//diagonales inferiores:
+
+	contador = 1;
+	contadorpotencial=mapaPotencialExp[objX][objY] - 2;
+
+	for(int i=objX+1; i<mapaResultado.size(); i++){
+		if(objY-contador >= 0)
+			mapaPotencialExp[i][objY-contador] = contadorpotencial;
+		if(objY + contador < mapaResultado.size())
+			mapaPotencialExp[i][objY+contador] = contadorpotencial;
+		contador++;
+		contadorpotencial = contadorpotencial - 2;
+	}
+
+
+
+}
 //Objetos Prioritarios
 int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
 	//bikini, zapatillas y posicionamiento, RECARGA NO.
@@ -405,6 +717,13 @@ Action ComportamientoJugador::movimientoPrioritario(Sensores sensores, int bruju
 
 }
 
+
+Action ComportamientoJugador::movimientoPotExp(){
+
+	
+
+
+}
 //Creación de archivos auxiliares:
 
 void ComportamientoJugador::crearArchivoMatrizAux(Sensores sensores){
@@ -463,6 +782,33 @@ void ComportamientoJugador::crearArchivoMapaPot(Sensores sensores){
 	//-----
 }
 
+void ComportamientoJugador::crearArchivoMapaPotExp(){
+
+	//-----
+		ofstream archivo;
+		archivo.open("mapapotencialEXPLOR.txt",ios::out);
+		if(archivo.fail()){
+			cout << "ERROR AL CREAR EL ARCHIVO";
+			exit(1);
+		} else {
+
+
+			
+			for(int i=0; i<mapaPotencialExp.size(); i++){
+				for(int j=0; j<mapaPotencialExp.size(); j++){
+					archivo<<mapaPotencialExp[i][j] << " ";
+				}
+				archivo << endl;
+			}
+
+
+			
+
+		}
+		archivo.close();
+
+	//-----
+}
 
 Action ComportamientoJugador::think(Sensores sensores){
 
@@ -505,15 +851,31 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	}
 
+	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP){
+		protocoloEXP = true;
+		CrearMapaProtExp();
+		crearArchivoMapaPotExp();
+		
+
+	}
+
 	//crearArchivoMapaPot(sensores);
 
 	//Selección de movimiento.
 
-	if(protocoloPrioritario)
+	if(protocoloPrioritario){
+		//cout << "P" << endl;
 		accion = movimientoPrioritario(sensores,brujula);	//seguir mapa de potencial en vez de mapa normal.
-	
-	 else 
+		
+	}
+	else if(protocoloEXP){
+		//cout << "E" << endl;
+		accion = movimientoPotExp();
+	}
+	else {
+		//cout << "D" << endl;
 		accion = movimientoDefault(sensores);
+}
 
 //----------------------------------------------------------------------
 	// Determinar el efecto de la ultima accion enviada

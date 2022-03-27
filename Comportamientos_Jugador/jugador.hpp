@@ -32,7 +32,7 @@ class ComportamientoJugador : public Comportamiento{
     void crearArchivoMatrizAux(Sensores sensores);
     Action movimientoDefault(Sensores sensores);
     Action movimientoPrioritario(Sensores sensores, int brujula);
-    Action movimientoPotExp();
+    Action movimientoProtExp();
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase

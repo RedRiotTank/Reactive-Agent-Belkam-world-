@@ -918,21 +918,24 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	if(protocoloPrioritario){
 		
-		//cout << "P" << endl;
+		cout << "P" << endl;
 		accion = movimientoPrioritario(sensores,brujula);	//seguir mapa de potencial en vez de mapa normal.
 		
 	}
 	else if(protocoloEXP){
-		//cout << "E" << endl;
+		cout << "E" << endl;
 		
 		if(bien_situado)
-		crearArchivoMapaProtExp();
-		cout << mapaPotencialExp[fil][col-1] << endl;
+			crearArchivoMapaProtExp();
+		
+
+		if(ultimaAccion == actIDLE)
+			mapaPotencialExp[fil][col]--;
 		accion = movimientoProtExp();
 		
 	}
 	else {
-		
+		cout << "D" << endl;
 		accion = movimientoDefault(sensores);
 }
 

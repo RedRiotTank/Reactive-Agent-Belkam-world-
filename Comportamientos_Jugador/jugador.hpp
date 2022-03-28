@@ -19,13 +19,13 @@ class ComportamientoJugador : public Comportamiento{
     
     
     void PintarMapas(Sensores sensores, vector<vector<unsigned char>> &map, int &fil,int &col) ;
-    Posicion CrearMapaProtExp();
+    Posicion CrearMapaProtExp(bool reajuste, Posicion pos);
     void resetPrioritario();
     void pasarMapaAuxAmapa(Sensores sensores);
     void actualizarPosYBruj(Sensores sensores,int &fil, int &col);
     int detectarObjetoPrioritario(Sensores sensores);  
     void crearArchivoMapaPot(Sensores sensores);
-    void crearArchivoMapaPotExp();
+    void crearArchivoMapaProtExp();
 
     void CrearMapaPotencialPrioritario(Sensores sensores, int numCasilla,int brujula);
     
@@ -37,7 +37,7 @@ class ComportamientoJugador : public Comportamiento{
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
       // Dar el valor inicial a las variables de estado
-      
+      proxReajuste = "";
       objetivoExplor.posX = -1;
       objetivoExplor.posY = -1;
       casillaSensorPrioritaria = -1;
@@ -105,7 +105,7 @@ class ComportamientoJugador : public Comportamiento{
     int filPotPrio,colPotPrio;
     int filAux, colAux, brujula;
     int casillaSensorPrioritaria;
-
+    
     bool girar_derecha;
     bool tengoZapas, tengoBikini;
     bool protocoloPrioritario, protocoloEXP;
@@ -113,7 +113,7 @@ class ComportamientoJugador : public Comportamiento{
     Action ultimaAccion;
     bool bien_situado;
     Posicion objetivoExplor;
-
+    string proxReajuste;
     
 
 };

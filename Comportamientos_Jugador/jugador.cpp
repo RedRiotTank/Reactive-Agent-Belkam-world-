@@ -170,101 +170,102 @@ void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
 
 }
 
-ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(){
+ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(bool reajuste, Posicion pos){
 
 	int incNorte = 0, incSur = 0, incEste = 0, incOeste = 0;
 	int objX=0, objY=0;
 
 	Posicion ObjetivoExplor;
 
-	//norte:
-	for(int i = fil-1; i>=0; i--)
-		for(int j = col-2; j<=col+2; j++)	
-			if(mapaResultado[i][j] == '?')
-				incNorte++;
+	if(!reajuste){
+		//norte:
+		for(int i = fil-1; i>=0; i--)
+			for(int j = col-2; j<=col+2; j++)	
+				if(mapaResultado[i][j] == '?')
+					incNorte++;
+			
+		
+		//sur:
+		for(int i = fil+1; i<mapaResultado.size(); i++)
+			for(int j = col-2; j<=col+2; j++)	
+				if(mapaResultado[i][j] == '?')
+					incSur++;
+					
+		//este:
+		for(int j = col+1; j<mapaResultado.size(); j++)
+			for(int i = fil-2; i<=fil+2; i++)	
+				if(mapaResultado[i][j] == '?')
+					incEste++;
+			
+		//oeste:
+		for(int j = col-1; j>=0; j--)
+			for(int i = fil-2; i<=fil+2; i++)	
+				if(mapaResultado[i][j] == '?')
+					incOeste++;
+
+	}
 		
 	
-	//sur:
-	for(int i = fil+1; i<mapaResultado.size(); i++)
-		for(int j = col-2; j<=col+2; j++)	
-			if(mapaResultado[i][j] == '?')
-				incSur++;
-				
-	//este:
-	for(int j = col+1; j<mapaResultado.size(); j++)
-		for(int i = fil-2; i<=fil+2; i++)	//me he asegurado de que hay precipicios en los bordes, no da core.
-			if(mapaResultado[i][j] == '?')
-				incEste++;
-		
-	//oeste:
-	for(int j = col-1; j>=0; j--)
-		for(int i = fil-2; i<=fil+2; i++)	//me he asegurado de que hay precipicios en los bordes, no da core.
-			if(mapaResultado[i][j] == '?')
-				incOeste++;
-		
-	
-	if(incNorte == 0 && incSur == 0 && incEste == 0 && incOeste == 0){
+	if(incNorte == 0 && incSur == 0 && incEste == 0 && incOeste == 0 && !reajuste){
 		objetivoExplor.posX = objetivoExplor.posY = -1;
 		return objetivoExplor;
 	} else {
 		
 		mapaPotencialExp[fil][col] = -3;
 		
-		if(incSur < incNorte  and incEste < incNorte and incOeste < incNorte){	//norte
-		
+		if(incSur < incNorte  and incEste < incNorte and incOeste < incNorte || proxReajuste == "norte"){	//norte
+			proxReajuste = "norte";
 			objX=0;
 			objY=col;
+
+			if(reajuste){ objX = pos.posX; objY = pos.posY;}
 			
 			//radiales verticales:
-				int puntos = fil - objX;//distancia a objetivo
-				puntos = puntos*2;
+				int puntos = (fil - objX)*100;//distancia a objetivo
 				int contador = 0;
 
 				//objetivo hacia el jugador.
-				for(int i=objX; i != fil; i++){
-					mapaPotencialExp[i][col] = puntos - contador;
+				for(int i=objX; i != mapaResultado.size(); i++){
+					mapaPotencialExp[i][objY] = puntos - contador;
 					contador++;
+					int contadorColumna = 1;
+					for(int j=objY+1; j!=mapaResultado.size(); j++){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
+					contadorColumna = 1;
+					for(int j=objY-1; j!=-1; j--){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
+
 				}
 				contador = 0;
 
 				//objetivo hacia arriba:
-				for(int i=objX; i != 0; i--){
+				for(int i=objX; i !=-1; i--){
 					mapaPotencialExp[i][col] = puntos - contador;
 					contador++;
+					int contadorColumna = 1;
+					for(int j=objY+1; j!=mapaResultado.size(); j++){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
+					contadorColumna = 1;
+					for(int j=objY-1; j!=-1; j--){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
 				}
 				contador = 0;
 
-			//radiales Horizontales:
-				
-				//a izq
-				for(int j=objY; j >=0; j--){
-					mapaPotencialExp[objX][j] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
-
-				//a dcha
-				for(int j=objY; j <mapaResultado.size(); j++){
-					mapaPotencialExp[objX][j] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
 		}
-		else if(incNorte < incSur and incEste < incSur and incOeste < incSur){ //sur
-	
+		else if(incNorte < incSur and incEste < incSur and incOeste < incSur || proxReajuste == "sur"){ //sur
+			proxReajuste = "sur";
 			objX=mapaResultado.size()-1;
 			objY=col;
-					
+			if(reajuste){ objX = pos.posX; objY = pos.posY;}		
 			//radiales verticales:
 
-				int puntos = objX - fil; //distancia a objetivo
-				puntos = puntos*2;
+				int puntos = (objX - fil)*100; //distancia a objetivo
 				int contador = 0;
 
 				//objetivo hacia el jugador.
-				for(int i=objX; i != fil; i--){
+				for(int i=objX; i != -1; i--){
 					mapaPotencialExp[i][objY] = puntos - contador;
 					contador++;
+					int contadorColumna = 1;
+					for(int j=objY+1; j!=mapaResultado.size(); j++){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
+					contadorColumna = 1;
+					for(int j=objY-1; j!=-1; j--){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
 				}
 				contador = 0;
 
@@ -272,39 +273,30 @@ ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(){
 				for(int i=objX; i != mapaResultado.size(); i++){
 					mapaPotencialExp[i][objY] = puntos - contador;
 					contador++;
+					int contadorColumna = 1;
+					for(int j=objY+1; j!=mapaResultado.size(); j++){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
+					contadorColumna = 1;
+					for(int j=objY-1; j!=-1; j--){mapaPotencialExp[i][j] = mapaPotencialExp[i][objY] - contadorColumna; contadorColumna++; }
 				}
 				contador = 0;
-				
-			//radiales Horizontales:
-
-				//a izq
-				for(int j=objY; j >=0; j--){
-					mapaPotencialExp[objX][j] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
-
-				//a dcha
-				for(int j=objY; j <mapaResultado.size(); j++){
-					mapaPotencialExp[objX][j] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
-			
 		}
-		else if(incNorte < incEste and incSur < incEste and incOeste < incEste) {//este
+		else if(incNorte < incEste and incSur < incEste and incOeste < incEste || proxReajuste == "este") {//este
+				proxReajuste = "este";
 				objX=fil;
 				objY=mapaResultado.size()-1;
-
+				if(reajuste){ objX = pos.posX; objY = pos.posY;}
 			//radiales horizontales:
-				int puntos = objY - col; //distancia a objetivo
-				puntos = puntos*2;
+				int puntos = (objY - col)*100; //distancia a objetivo
 				int contador = 0;
 
 				//objetivo hacia el jugador.
-				for(int i=objY; i != col; i--){
+				for(int i=objY; i != -1; i--){
 					mapaPotencialExp[objX][i] = puntos - contador;
 					contador++;
+					int contadorfilas = 1;
+					for(int j=objX-1; j!= -1; j--){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
+					contadorfilas = 1;
+					for(int j=objX+1; j!=mapaResultado.size(); j++){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
 				}
 				contador = 0;
 
@@ -312,39 +304,32 @@ ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(){
 				for(int i=objY; i < mapaResultado.size(); i++){
 					mapaPotencialExp[objX][i] = puntos - contador;
 					contador++;
+					int contadorfilas = 1;
+					for(int j=objX-1; j!= -1; j--){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
+					contadorfilas = 1;
+					for(int j=objX+1; j!=mapaResultado.size(); j++){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
 				}
 				contador = 0;
 
-			//radiales verticales:
-
-				//arriba
-				for(int j=objX; j >=0; j--){
-					mapaPotencialExp[j][objY] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
-
-				//abajo
-				for(int j=objX; j <mapaResultado.size(); j++){
-					mapaPotencialExp[j][objY] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
 		}
-		else if(incNorte<incOeste and incSur<incOeste and incEste < incOeste){//oeste	
+		else if(incNorte<incOeste and incSur<incOeste and incEste < incOeste || proxReajuste == "oeste"){//oeste	
+			proxReajuste = "oeste";
 			objX=fil;
 			objY=0;
-	
+			if(reajuste){ objX = pos.posX; objY = pos.posY;}
 			//radiales horizontales:
 
-				int puntos = col - objY;//distancia a objetivo
-				puntos = puntos*2;
+				int puntos = (col - objY) * 10;//distancia a objetivo
 				int contador = 0;
 
 				//objetivo hacia el jugador.
-				for(int i=objY; i != col; i++){
+				for(int i=objY; i != mapaResultado.size(); i++){
 					mapaPotencialExp[objX][i] = puntos - contador;
 					contador++;
+					int contadorfilas = 1;
+					for(int j=objX-1; j!= -1; j--){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] -contadorfilas; contadorfilas++; }
+					contadorfilas = 1;
+					for(int j=objX+1; j!=mapaResultado.size(); j++){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
 				}
 				contador = 0;
 
@@ -352,56 +337,13 @@ ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(){
 				for(int i=objY; i >= 0; i--){
 					mapaPotencialExp[objX][i] = puntos - contador;
 					contador++;
-				}
-				contador = 0;
-
-			//radiales verticales:
-
-				//arriba
-				for(int j=objX; j >=0; j--){
-					mapaPotencialExp[j][objY] = puntos-contador;
-					contador++;
-				}
-				contador = 0;
-
-				//abajo
-				for(int j=objX; j <mapaResultado.size(); j++){
-					mapaPotencialExp[j][objY] = puntos-contador;
-					contador++;
+					int contadorfilas = 1;
+					for(int j=objX-1; j!= -1; j--){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
+					contadorfilas = 1;
+					for(int j=objX+1; j!=mapaResultado.size(); j++){mapaPotencialExp[j][i] = mapaPotencialExp[objX][i] - contadorfilas; contadorfilas++; }
 				}
 				contador = 0;
 		}
-			
-		//Diagonales superiores:
-		int contador = 1;
-		int contadorpotencial = mapaPotencialExp[objX][objY] - 2;
-		
-		for(int i=objX-1; i>=0; i--){
-			if(objY-contador >= 0)
-				mapaPotencialExp[i][objY-contador] = contadorpotencial;
-
-			if(objY + contador < mapaResultado.size())
-				mapaPotencialExp[i][objY+contador] = contadorpotencial;
-
-			contador++;
-			contadorpotencial = contadorpotencial - 2;
-		}
-
-		//diagonales inferiores:
-		contador = 1;
-		contadorpotencial=mapaPotencialExp[objX][objY] - 2;
-
-		for(int i=objX+1; i<mapaResultado.size(); i++){
-			if(objY-contador >= 0)
-				mapaPotencialExp[i][objY-contador] = contadorpotencial;
-
-			if(objY + contador < mapaResultado.size())
-				mapaPotencialExp[i][objY+contador] = contadorpotencial;
-
-			contador++;
-			contadorpotencial = contadorpotencial - 2;
-		}
-
 
 		ObjetivoExplor.posX = objX;
 		ObjetivoExplor.posY = objY;
@@ -814,7 +756,7 @@ void ComportamientoJugador::crearArchivoMapaPot(Sensores sensores){
 	//-----
 }
 
-void ComportamientoJugador::crearArchivoMapaPotExp(){
+void ComportamientoJugador::crearArchivoMapaProtExp(){
 
 	//-----
 		ofstream archivo;
@@ -828,7 +770,7 @@ void ComportamientoJugador::crearArchivoMapaPotExp(){
 			
 			for(int i=0; i<mapaPotencialExp.size(); i++){
 				for(int j=0; j<mapaPotencialExp.size(); j++){
-					archivo<<setw(3)<<mapaPotencialExp[i][j];
+					archivo<<setw(5)<<mapaPotencialExp[i][j];
 				}
 				archivo << endl;
 			}
@@ -886,14 +828,21 @@ Action ComportamientoJugador::think(Sensores sensores){
 	//Detección, iniciación y creación del protocolo Explorar y su mapa de potencial.
 	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP){
 		protocoloEXP = true;
-		objetivoExplor = CrearMapaProtExp();
+		Posicion nula;
+		nula.posX = -1;
+		nula.posY = -1;
+		objetivoExplor = CrearMapaProtExp(false, nula);
 		
 		if(objetivoExplor.posX == -1 && objetivoExplor.posY == -1)
 			protocoloEXP = false;
 		
-		crearArchivoMapaPotExp();
+		
+	
+		crearArchivoMapaProtExp();
 		
 	}
+
+	
 
 
 	//Comprobamos que el objetivo de exploración no sea innacesible (reducimos su rango)
@@ -941,6 +890,7 @@ Action ComportamientoJugador::think(Sensores sensores){
 		
 		//Comprobamos si hemos llegado al destino.
 		if(fil == objetivoExplor.posX && col == objetivoExplor.posY){
+			proxReajuste = "";
 			protocoloEXP = false;
 			objetivoExplor.posX = -1;
 			objetivoExplor.posY = -1;
@@ -955,6 +905,15 @@ Action ComportamientoJugador::think(Sensores sensores){
 	
 	//crearArchivoMapaPot(sensores);
 
+	
+
+		for(int i=0; i<mapaResultado.size(); i++){
+			for(int j=0; j<mapaResultado.size(); j++)
+				if(mapaResultado[i][j] == 'M' || mapaResultado[i][j] == 'P') 
+					mapaPotencialExp[i][j] = -100;
+		}
+	
+
 	//Selección de movimiento.
 
 	if(protocoloPrioritario){
@@ -966,12 +925,14 @@ Action ComportamientoJugador::think(Sensores sensores){
 	else if(protocoloEXP){
 		//cout << "E" << endl;
 		
-		
+		if(bien_situado)
+		crearArchivoMapaProtExp();
+		cout << mapaPotencialExp[fil][col-1] << endl;
 		accion = movimientoProtExp();
 		
 	}
 	else {
-		//cout << "D" << endl;
+		
 		accion = movimientoDefault(sensores);
 }
 

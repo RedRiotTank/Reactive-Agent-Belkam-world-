@@ -6,6 +6,30 @@
 #include<iomanip>
 using namespace std;
 
+void ComportamientoJugador::pintarPrecipicios(){
+
+	for(int j=0; j<mapaResultado.size(); j++){
+		mapaResultado[0][j] = 'P';
+		mapaResultado[1][j] = 'P';
+		mapaResultado[2][j] = 'P';
+		mapaResultado[mapaResultado.size()-3][j] = 'P';
+		mapaResultado[mapaResultado.size()-2][j] = 'P';
+		mapaResultado[mapaResultado.size()-1][j] = 'P';
+	}
+
+	for(int i=3; i<mapaResultado.size()-3; i++){
+		mapaResultado[i][0] = 'P';
+		mapaResultado[i][1] = 'P';
+		mapaResultado[i][2] = 'P';
+		mapaResultado[i][mapaResultado.size()] = 'P';
+		mapaResultado[i][mapaResultado.size()-1] = 'P';
+		mapaResultado[i][mapaResultado.size()-2] = 'P';
+
+	}
+
+	
+}
+
 void ComportamientoJugador::AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter){
 
 	if(sensores.nivel == 0 && primiter){
@@ -593,7 +617,7 @@ Action ComportamientoJugador::movimientoProtExp(){
 
 	if(fil != 0){
 
-		if(mapaPotencialExp[fil-1][col] > max){
+		if(mapaPotencialExp[fil-1][col] >max){
 		
 		norte = true;
 		max = mapaPotencialExp[fil-1][col];
@@ -610,7 +634,7 @@ Action ComportamientoJugador::movimientoProtExp(){
 		}
 	}
 	if(col != mapaPotencialExp.size()){
-		if(mapaPotencialExp[fil][col+1] > max){
+		if(mapaPotencialExp[fil][col+1] >max){
 		
 			este = true;
 			sur = false;
@@ -765,8 +789,11 @@ void ComportamientoJugador::crearArchivoMapaProtExp(){
 			cout << "ERROR AL CREAR EL ARCHIVO";
 			exit(1);
 		} else {
-
-
+			
+			for(int j=0; j<mapaPotencialExp.size(); j++){
+				archivo<< setw(5)<<j;
+			}
+			archivo<<endl;
 			
 			for(int i=0; i<mapaPotencialExp.size(); i++){
 				for(int j=0; j<mapaPotencialExp.size(); j++){
@@ -786,6 +813,11 @@ void ComportamientoJugador::crearArchivoMapaProtExp(){
 
 Action ComportamientoJugador::think(Sensores sensores){
 
+
+	if(sensores.colision){
+		ultimaAccion = actIDLE;
+		
+	}
 	Action accion = actIDLE;
 
 	AjustesPrimeraIteracion(sensores, bien_situado, fil,col,primiter);
@@ -887,9 +919,10 @@ Action ComportamientoJugador::think(Sensores sensores){
 					objetivoExplor.posY++;
 			break;
 		}
-		
+		cout << objetivoExplor.posX << " " << objetivoExplor.posY<< " " << mapaPotencialExp[objetivoExplor.posX][objetivoExplor.posY]<< endl;
 		//Comprobamos si hemos llegado al destino.
 		if(fil == objetivoExplor.posX && col == objetivoExplor.posY){
+			
 			proxReajuste = "";
 			protocoloEXP = false;
 			objetivoExplor.posX = -1;
@@ -908,10 +941,34 @@ Action ComportamientoJugador::think(Sensores sensores){
 	
 
 		for(int i=0; i<mapaResultado.size(); i++){
-			for(int j=0; j<mapaResultado.size(); j++)
+			for(int j=0; j<mapaResultado.size(); j++){
 				if(mapaResultado[i][j] == 'M' || mapaResultado[i][j] == 'P') 
 					mapaPotencialExp[i][j] = -100;
+
+				if(mapaPotencialExp[i][j] > MaximoPotencialExp)
+					MaximoPotencialExp = mapaPotencialExp[i][j];
+			}
 		}
+
+		if(protocoloEXP){
+
+				if(mapaPotencialExp[fil][col] == MaximoPotencialExp){
+				
+				proxReajuste = "";
+				protocoloEXP = false;
+				objetivoExplor.posX = -1;
+				objetivoExplor.posY = -1;
+				MaximoPotencialExp = 0;
+
+				// Se reajusta el mapamapa potencial exploracion
+				mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+				for(int i=0; i<mapaResultado.size(); i++)
+					for(int j=0; j<mapaResultado.size(); j++)
+						mapaPotencialExp[i][j] = 0;
+			}
+		}
+
+		
 	
 
 	//Selección de movimiento.

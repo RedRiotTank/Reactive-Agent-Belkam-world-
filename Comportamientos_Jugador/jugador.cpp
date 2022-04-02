@@ -825,7 +825,7 @@ Action ComportamientoJugador::think(Sensores sensores){
 	//Actualización de mapas y orientación.
 	ActualizacionMapaYorientacion(sensores,fil,col,filAux,colAux,mapaResultado,mapaAuxiliar);
 
-	//crearArchivoMatrizAux(sensores);
+
 
 	//Comprobación y ajuste de casillas K,D o G.
 	if(sensores.terreno[0] == 'D')
@@ -847,18 +847,16 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	//Detección e iniciación del protocolo prioritario.
 
-	if(!protocoloPrioritario)
+	if(!protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado))
 		casillaSensorPrioritaria = detectarObjetoPrioritario(sensores);
 
-	if(casillaSensorPrioritaria != -1 && !protocoloPrioritario){
+	if(casillaSensorPrioritaria != -1 && !protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado)){
 		protocoloPrioritario = true;
 		CrearMapaPotencialPrioritario(sensores,casillaSensorPrioritaria,brujula);
-		
-
 	}
 
 	//Detección, iniciación y creación del protocolo Explorar y su mapa de potencial.
-	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP){
+	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP and ticksDefault == 0){
 		protocoloEXP = true;
 		Posicion nula;
 		nula.posX = -1;
@@ -867,16 +865,12 @@ Action ComportamientoJugador::think(Sensores sensores){
 		
 		if(objetivoExplor.posX == -1 && objetivoExplor.posY == -1)
 			protocoloEXP = false;
-		
-		
 	
 		crearArchivoMapaProtExp();
 		
 	}
 
 	
-
-
 	//Comprobamos que el objetivo de exploración no sea innacesible (reducimos su rango)
 	
 	if(protocoloEXP && objetivoExplor.posX != -1 && objetivoExplor.posY != -1){
@@ -936,40 +930,53 @@ Action ComportamientoJugador::think(Sensores sensores){
 		}
 	}
 	
-	//crearArchivoMapaPot(sensores);
 
-	
+	//colocamos los -100 en el mapa de pontencial de exploración.
+	for(int i=0; i<mapaResultado.size(); i++){
+		for(int j=0; j<mapaResultado.size(); j++){
+			if(mapaResultado[i][j] == 'M' || mapaResultado[i][j] == 'P') 
+				mapaPotencialExp[i][j] = -100;
 
-		for(int i=0; i<mapaResultado.size(); i++){
-			for(int j=0; j<mapaResultado.size(); j++){
-				if(mapaResultado[i][j] == 'M' || mapaResultado[i][j] == 'P') 
-					mapaPotencialExp[i][j] = -100;
-
-				if(mapaPotencialExp[i][j] > MaximoPotencialExp)
-					MaximoPotencialExp = mapaPotencialExp[i][j];
-			}
+			if(mapaPotencialExp[i][j] > MaximoPotencialExp)
+				MaximoPotencialExp = mapaPotencialExp[i][j];
 		}
-
-		if(protocoloEXP){
-
-				if(mapaPotencialExp[fil][col] == MaximoPotencialExp){
+	}
+	//Comprobamos si ha finalizado el protocolo de exploración 
+	if(protocoloEXP){
+		if(mapaPotencialExp[fil][col] == MaximoPotencialExp){
 				
-				proxReajuste = "";
-				protocoloEXP = false;
-				objetivoExplor.posX = -1;
-				objetivoExplor.posY = -1;
-				MaximoPotencialExp = 0;
+			proxReajuste = "";
+			protocoloEXP = false;
+			objetivoExplor.posX = -1;
+			objetivoExplor.posY = -1;
+			MaximoPotencialExp = 0;
 
-				// Se reajusta el mapamapa potencial exploracion
-				mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
-				for(int i=0; i<mapaResultado.size(); i++)
-					for(int j=0; j<mapaResultado.size(); j++)
-						mapaPotencialExp[i][j] = 0;
-			}
+			// Se reajusta el mapamapa potencial exploracion
+			mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+			for(int i=0; i<mapaResultado.size(); i++)
+				for(int j=0; j<mapaResultado.size(); j++)
+					mapaPotencialExp[i][j] = 0;
 		}
+	}
 
-		
-	
+if(protocoloEXP){
+
+		if((sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P' or (mapaPotencialExp[fil+1][col] < mapaPotencialExp[fil][col] and mapaPotencialExp[fil-1][col] < mapaPotencialExp[fil][col] and 
+	mapaPotencialExp[fil][col+1] < mapaPotencialExp[fil][col] and mapaPotencialExp[fil-1][col] < mapaPotencialExp[fil][col-1] ))){
+		proxReajuste = "";
+			protocoloEXP = false;
+			objetivoExplor.posX = -1;
+			objetivoExplor.posY = -1;
+			MaximoPotencialExp = 0;
+			ticksDefault = 10;
+			// Se reajusta el mapamapa potencial exploracion
+			mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+			for(int i=0; i<mapaResultado.size(); i++)
+				for(int j=0; j<mapaResultado.size(); j++)
+					mapaPotencialExp[i][j] = 0;
+	}
+}
+
 
 	//Selección de movimiento.
 
@@ -993,6 +1000,8 @@ Action ComportamientoJugador::think(Sensores sensores){
 	}
 	else {
 		cout << "D" << endl;
+		if(ticksDefault >0)
+			ticksDefault--;
 		accion = movimientoDefault(sensores);
 }
 

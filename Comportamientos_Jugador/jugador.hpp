@@ -36,6 +36,7 @@ class ComportamientoJugador : public Comportamiento{
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
+      ticksDefault = 0;
       pintarPrecipicios();
       // Dar el valor inicial a las variables de estado
       MaximoPotencialExp = 0;
@@ -117,6 +118,7 @@ class ComportamientoJugador : public Comportamiento{
     Posicion objetivoExplor;
     string proxReajuste;
     int MaximoPotencialExp;
+    int ticksDefault;
     
     
 

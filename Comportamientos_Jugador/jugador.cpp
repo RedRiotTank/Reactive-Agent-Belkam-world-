@@ -6,6 +6,78 @@
 #include<iomanip>
 using namespace std;
 
+//Actualizaciones
+void ComportamientoJugador::AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter){
+
+	if(sensores.nivel == 0 && primiter){
+		bien_situado = true;
+		fil = sensores.posF;
+		col = sensores.posC;
+		primiter = false;
+	}
+
+}
+
+void ComportamientoJugador::ActualizacionMapaYorientacion(Sensores sensores,int &fil, int &col, int &filAux, int &colAux, vector<vector<unsigned char>> &mapaResultado, vector<vector<unsigned char>> &mapaAuxiliar){
+
+	if(bien_situado){
+			actualizarPosYBruj(sensores,fil,col);
+			PintarMapas(sensores,mapaResultado,fil,col);
+		}
+		else{
+			actualizarPosYBruj(sensores,filAux,colAux);
+			PintarMapas(sensores,mapaAuxiliar,filAux,colAux);
+		}
+}
+
+void ComportamientoJugador::actualizarPosYBruj(Sensores sensores, int &fil, int &col){
+	
+		switch(ultimaAccion){
+			case actFORWARD:
+				switch(brujula){
+					case 0: fil--; break;
+					case 1: col++; break;
+					case 2: fil++; break;
+					case 3: col--; break;
+				}
+				break;
+			case actTURN_L:
+				brujula = (brujula+3)%4;
+				girar_derecha = (rand()%2==0);
+				break;
+			case actTURN_R:
+				brujula = (brujula+1)%4;
+				girar_derecha = (rand()%2==0);
+				break;
+			case actIDLE:
+				girar_derecha = (rand()%2==0);
+				break;
+		}		
+
+	if(sensores.nivel < 2){
+		brujula = sensores.sentido;
+	}
+}
+
+void ComportamientoJugador::comprobacionKDG(Sensores sensores){
+
+	if(sensores.terreno[0] == 'D')
+		tengoZapas = true;
+	
+	if(sensores.terreno[0] == 'K')
+		tengoBikini = true;
+
+	if(sensores.terreno[0] == 'G' && !bien_situado){
+		
+		pasarMapaAuxAmapa(sensores);
+		bien_situado = true;
+	}
+
+	if(sensores.terreno[0] == 'K' || sensores.terreno[0] == 'G' || sensores.terreno[0] == 'D')
+		resetPrioritario();
+
+}
+//Pintado de mapas
 void ComportamientoJugador::pintarPrecipicios(){
 
 	for(int j=0; j<mapaResultado.size(); j++){
@@ -24,75 +96,14 @@ void ComportamientoJugador::pintarPrecipicios(){
 		mapaResultado[i][mapaResultado.size()] = 'P';
 		mapaResultado[i][mapaResultado.size()-1] = 'P';
 		mapaResultado[i][mapaResultado.size()-2] = 'P';
-
 	}
-
-	
 }
 
-void ComportamientoJugador::AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter){
-
-	if(sensores.nivel == 0 && primiter){
-		bien_situado = true;
-		fil = sensores.posF;
-		col = sensores.posC;
-		primiter = false;
-	}
-
-}
-
-//Actualizaciones
-void ComportamientoJugador::ActualizacionMapaYorientacion(Sensores sensores,int &fil, int &col, int &filAux, int &colAux, vector<vector<unsigned char>> &mapaResultado, vector<vector<unsigned char>> &mapaAuxiliar){
-
-	if(bien_situado){
-			actualizarPosYBruj(sensores,fil,col);
-			PintarMapas(sensores,mapaResultado,fil,col);
-		}
-		else{
-			actualizarPosYBruj(sensores,filAux,colAux);
-			PintarMapas(sensores,mapaAuxiliar,filAux,colAux);
-		}
-}
-
-void ComportamientoJugador::actualizarPosYBruj(Sensores sensores, int &fil, int &col){
-	
-		switch(ultimaAccion){
-		case actFORWARD:
-			switch(brujula){
-				case 0: fil--; break;
-				case 1: col++; break;
-				case 2: fil++; break;
-				case 3: col--; break;
-			}
-			break;
-		case actTURN_L:
-			brujula = (brujula+3)%4;
-			girar_derecha = (rand()%2==0);
-			break;
-		case actTURN_R:
-			brujula = (brujula+1)%4;
-			girar_derecha = (rand()%2==0);
-			break;
-		case actIDLE:
-			girar_derecha = (rand()%2==0);
-			break;
-		}		
-
-	if(sensores.nivel < 2){
-
-		brujula = sensores.sentido;
-	}
-	
-
-}
-
-//Pintado de mapas
 void ComportamientoJugador::PintarMapas(Sensores sensores, vector<vector<unsigned char>> &map, int &fil, int &col){
 
 	map[fil][col] = sensores.terreno[0];
 	int sens;
 	
-
 	switch(brujula){
 				case 0: // norte ^
 					sens = 1;
@@ -179,18 +190,253 @@ void ComportamientoJugador::pasarMapaAuxAmapa(Sensores sensores){
 	diferencia.first = abs(filAux-fil);
 	diferencia.second = abs(colAux-col);
 
-	
-
-	for(int i=0; i<200; i++){
-		for(int j=0; j<200; j++){
-
-			if(mapaAuxiliar[i][j] != '?'){
+	for(int i=0; i<200; i++)
+		for(int j=0; j<200; j++)
+			if(mapaAuxiliar[i][j] != '?')
 				mapaResultado[i-diferencia.first][j - diferencia.second] = mapaAuxiliar[i][j];
-			}
+}
 
+
+//Objetos Prioritarios
+void ComportamientoJugador::inaccesibilidadPrio(){
+
+		if(protocoloEXP && objetivoExplor.posX != -1 && objetivoExplor.posY != -1){
+
+		int caso;
+
+		if(col == objetivoExplor.posY && fil > objetivoExplor.posX)
+			caso = 0;
+		 else if(col == objetivoExplor.posY && fil < objetivoExplor.posX)
+			caso = 2;
+		 else if(fil == objetivoExplor.posX && col < objetivoExplor.posY)
+			caso = 1;
+		 else 
+			caso = 3;
+		
+		
+		switch (caso){
+		case 0:
+			if(fil - objetivoExplor.posX <= 3)
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
+					objetivoExplor.posX++;
+			break;
+		
+		case 1:
+			
+			if(objetivoExplor.posY - col  <= 3)
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
+					objetivoExplor.posY--;
+			break;
+
+		case 2:
+			if(objetivoExplor.posX  - fil<= 3)
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
+					objetivoExplor.posX--;
+			break;
+
+		case 3:
+			if(col - objetivoExplor.posY  <= 3)
+				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
+					objetivoExplor.posY++;
+			break;
+		}
+		cout << objetivoExplor.posX << " " << objetivoExplor.posY<< " " << mapaPotencialExp[objetivoExplor.posX][objetivoExplor.posY]<< endl;
+		//Comprobamos si hemos llegado al destino.
+		if(fil == objetivoExplor.posX && col == objetivoExplor.posY){
+			
+			proxReajuste = "";
+			protocoloEXP = false;
+			objetivoExplor.posX = -1;
+			objetivoExplor.posY = -1;
+
+			// Se reajusta el mapamapa potencial exploracion
+      		mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+      		for(int i=0; i<mapaResultado.size(); i++)
+        		for(int j=0; j<mapaResultado.size(); j++)
+          			mapaPotencialExp[i][j] = 0;
 		}
 	}
+}
 
+void ComportamientoJugador::detectarEiniciarPrioritario(Sensores sensores){
+
+	if(!protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado))
+		casillaSensorPrioritaria = detectarObjetoPrioritario(sensores);
+
+	if(casillaSensorPrioritaria != -1 && !protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado)){
+		protocoloPrioritario = true;
+		CrearMapaPotencialPrioritario(sensores,casillaSensorPrioritaria,brujula);
+	}
+
+}
+
+int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
+	//bikini, zapatillas y posicionamiento, RECARGA NO.
+
+	if(!protocoloPrioritario)
+		for(int i=1; i<= 15; i++)
+			if((sensores.terreno[i] == 'K' && !tengoBikini) or (sensores.terreno[i] == 'D' && !tengoZapas) or sensores.terreno[i] == 'G' && !bien_situado )
+				return i;
+	return -1;
+}
+
+void ComportamientoJugador::CrearMapaPotencialPrioritario(Sensores sensores, int numCasilla, int brujula){ //supone que no hay obstaculos como muros o precipicios.
+	int haciaAdelante = 0, haciaLado = 0;
+
+
+	int potencialCampo = 1;
+
+
+	//haciaAdelante:
+	if(numCasilla >= 9 and numCasilla <= 15){
+		haciaAdelante = 3;
+	} else if (numCasilla >= 4 and numCasilla <=8){
+		haciaAdelante = 2;
+	} else if(numCasilla >= 1 and numCasilla <=3) {
+		haciaAdelante = 1;
+	}
+
+	//haciaLado:
+
+	if(numCasilla == 15 || numCasilla == 9)
+		haciaLado = 3;
+	else if(numCasilla == 10 || numCasilla ==4 || numCasilla == 14 || numCasilla == 8 )
+		haciaLado = 2;
+	else if(numCasilla == 1 || numCasilla == 5 || numCasilla == 11 || numCasilla == 3 || numCasilla == 7 || numCasilla == 13)
+		haciaLado = 1;
+
+	//Diseño del mapa:
+
+	//haciaadelante:
+
+	for(int i=1; i<=haciaAdelante; i++){
+		switch (brujula){
+			case 0:	//norte ^
+
+				mapaPotencial[filPotPrio - i][colPotPrio] = potencialCampo;
+
+			break;
+			
+			case 1: //este --> 
+				mapaPotencial[filPotPrio][colPotPrio + i] = potencialCampo;
+			break;
+
+			case 2:	//sur V
+				mapaPotencial[filPotPrio + i][colPotPrio] = potencialCampo;
+			break;
+
+			case 3: //oeste <--
+				mapaPotencial[filPotPrio][colPotPrio - i] = potencialCampo;
+			break;
+		}
+	
+		potencialCampo++;
+	}
+
+
+	//Comprobamos si está a la izq,dcha o centro.
+
+	bool izq = false, dcha = false, ctr = false;
+
+	if(numCasilla == 1 or numCasilla == 4 or numCasilla == 5 or numCasilla == 9 or numCasilla == 10 or numCasilla == 11)
+		izq = true;
+	else if(numCasilla == 3 or numCasilla == 7 or numCasilla == 8 or numCasilla == 13 or numCasilla == 14 or numCasilla == 15)
+		dcha = true;
+	else
+		ctr = true;
+
+	//haciaLado:
+
+	int factorOrient = 0;	// sirve para determinar posiciones en funcion de si el objeto está a la izq, a la derecha, o en el centro
+
+	if(dcha)
+		factorOrient = 1;
+	else if (izq)
+		factorOrient = -1;
+
+
+	if(!ctr){
+
+		for(int i=1; i<=haciaLado; i++){
+		switch (brujula){
+			case 0:	//norte ^
+
+				mapaPotencial[filPotPrio - haciaAdelante][ colPotPrio + (factorOrient*i)] = potencialCampo;
+
+			break;
+			
+			case 1: //este --> 
+				mapaPotencial[filPotPrio + (factorOrient*i)][colPotPrio + haciaAdelante] = potencialCampo;
+			break;
+
+			case 2:	//sur V
+
+				factorOrient = factorOrient * -1; // para invertirlo.
+				mapaPotencial[filPotPrio + haciaAdelante][colPotPrio + (factorOrient*i)] = potencialCampo;
+				factorOrient = factorOrient * -1; //para re invertirlo (pq si no s eestá cambiando todo el rato).
+			break;
+
+			case 3: //oeste <--
+				factorOrient = factorOrient * -1;
+				mapaPotencial[filPotPrio + (factorOrient*i)][colPotPrio - haciaAdelante] = potencialCampo;
+				factorOrient = factorOrient * -1;
+			break;
+		}
+	
+		potencialCampo++;
+		}
+
+	}
+	
+
+	
+	
+	
+}
+
+void ComportamientoJugador::resetPrioritario(){
+	protocoloPrioritario = false;
+	 for(int i=0; i<8; i++)
+        for(int j=0; j<8; j++)
+          mapaPotencial[i][j] = 0;
+
+	filPotPrio = colPotPrio = 4;
+
+}
+
+//exploracion
+void ComportamientoJugador::finProtExplor(Sensores sensores){
+
+	if(protocoloEXP){
+
+		if((sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P' or (mapaPotencialExp[fil+1][col] < mapaPotencialExp[fil][col] and mapaPotencialExp[fil-1][col] < mapaPotencialExp[fil][col] and 
+	mapaPotencialExp[fil][col+1] < mapaPotencialExp[fil][col] and mapaPotencialExp[fil-1][col] < mapaPotencialExp[fil][col-1] ))){
+		proxReajuste = "";
+			protocoloEXP = false;
+			objetivoExplor.posX = -1;
+			objetivoExplor.posY = -1;
+			MaximoPotencialExp = 0;
+			ticksDefault = 10;
+			// Se reajusta el mapamapa potencial exploracion
+			mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+			for(int i=0; i<mapaResultado.size(); i++)
+				for(int j=0; j<mapaResultado.size(); j++)
+					mapaPotencialExp[i][j] = 0;
+	}
+}
+}
+
+void ComportamientoJugador::ColocarObstaculosExploracion(){
+
+	for(int i=0; i<mapaResultado.size(); i++){
+		for(int j=0; j<mapaResultado.size(); j++){
+			if(mapaResultado[i][j] == 'M' || mapaResultado[i][j] == 'P') 
+				mapaPotencialExp[i][j] = -100;
+
+			if(mapaPotencialExp[i][j] > MaximoPotencialExp)
+				MaximoPotencialExp = mapaPotencialExp[i][j];
+		}
+	}
 
 }
 
@@ -375,139 +621,20 @@ ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(bool rea
 		return ObjetivoExplor;
 	}
 }
-//Objetos Prioritarios
-int ComportamientoJugador::detectarObjetoPrioritario(Sensores sensores){
-	//bikini, zapatillas y posicionamiento, RECARGA NO.
 
-	if(!protocoloPrioritario)
-		for(int i=1; i<= 15; i++)
-			if((sensores.terreno[i] == 'K' && !tengoBikini) or (sensores.terreno[i] == 'D' && !tengoZapas) or sensores.terreno[i] == 'G' && !bien_situado )
-				return i;
-	return -1;
-}
-
-void ComportamientoJugador::CrearMapaPotencialPrioritario(Sensores sensores, int numCasilla, int brujula){ //supone que no hay obstaculos como muros o precipicios.
-	int haciaAdelante = 0, haciaLado = 0;
-
-
-	int potencialCampo = 1;
-
-
-	//haciaAdelante:
-	if(numCasilla >= 9 and numCasilla <= 15){
-		haciaAdelante = 3;
-	} else if (numCasilla >= 4 and numCasilla <=8){
-		haciaAdelante = 2;
-	} else if(numCasilla >= 1 and numCasilla <=3) {
-		haciaAdelante = 1;
+void ComportamientoJugador::detectarEiniciarExploracion(Sensores sensores){
+	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP and ticksDefault == 0){
+		protocoloEXP = true;
+		Posicion nula;
+		nula.posX = -1;
+		nula.posY = -1;
+		objetivoExplor = CrearMapaProtExp(false, nula);
+		
+		if(objetivoExplor.posX == -1 && objetivoExplor.posY == -1)
+			protocoloEXP = false;
+	
+		crearArchivoMapaProtExp();
 	}
-
-	//haciaLado:
-
-	if(numCasilla == 15 || numCasilla == 9)
-		haciaLado = 3;
-	else if(numCasilla == 10 || numCasilla ==4 || numCasilla == 14 || numCasilla == 8 )
-		haciaLado = 2;
-	else if(numCasilla == 1 || numCasilla == 5 || numCasilla == 11 || numCasilla == 3 || numCasilla == 7 || numCasilla == 13)
-		haciaLado = 1;
-
-	//Diseño del mapa:
-
-	//haciaadelante:
-
-	for(int i=1; i<=haciaAdelante; i++){
-		switch (brujula){
-			case 0:	//norte ^
-
-				mapaPotencial[filPotPrio - i][colPotPrio] = potencialCampo;
-
-			break;
-			
-			case 1: //este --> 
-				mapaPotencial[filPotPrio][colPotPrio + i] = potencialCampo;
-			break;
-
-			case 2:	//sur V
-				mapaPotencial[filPotPrio + i][colPotPrio] = potencialCampo;
-			break;
-
-			case 3: //oeste <--
-				mapaPotencial[filPotPrio][colPotPrio - i] = potencialCampo;
-			break;
-		}
-	
-		potencialCampo++;
-	}
-
-
-	//Comprobamos si está a la izq,dcha o centro.
-
-	bool izq = false, dcha = false, ctr = false;
-
-	if(numCasilla == 1 or numCasilla == 4 or numCasilla == 5 or numCasilla == 9 or numCasilla == 10 or numCasilla == 11)
-		izq = true;
-	else if(numCasilla == 3 or numCasilla == 7 or numCasilla == 8 or numCasilla == 13 or numCasilla == 14 or numCasilla == 15)
-		dcha = true;
-	else
-		ctr = true;
-
-	//haciaLado:
-
-	int factorOrient = 0;	// sirve para determinar posiciones en funcion de si el objeto está a la izq, a la derecha, o en el centro
-
-	if(dcha)
-		factorOrient = 1;
-	else if (izq)
-		factorOrient = -1;
-
-
-	if(!ctr){
-
-		for(int i=1; i<=haciaLado; i++){
-		switch (brujula){
-			case 0:	//norte ^
-
-				mapaPotencial[filPotPrio - haciaAdelante][ colPotPrio + (factorOrient*i)] = potencialCampo;
-
-			break;
-			
-			case 1: //este --> 
-				mapaPotencial[filPotPrio + (factorOrient*i)][colPotPrio + haciaAdelante] = potencialCampo;
-			break;
-
-			case 2:	//sur V
-
-				factorOrient = factorOrient * -1; // para invertirlo.
-				mapaPotencial[filPotPrio + haciaAdelante][colPotPrio + (factorOrient*i)] = potencialCampo;
-				factorOrient = factorOrient * -1; //para re invertirlo (pq si no s eestá cambiando todo el rato).
-			break;
-
-			case 3: //oeste <--
-				factorOrient = factorOrient * -1;
-				mapaPotencial[filPotPrio + (factorOrient*i)][colPotPrio - haciaAdelante] = potencialCampo;
-				factorOrient = factorOrient * -1;
-			break;
-		}
-	
-		potencialCampo++;
-		}
-
-	}
-	
-
-	
-	
-	
-}
-
-void ComportamientoJugador::resetPrioritario(){
-	protocoloPrioritario = false;
-	 for(int i=0; i<8; i++)
-        for(int j=0; j<8; j++)
-          mapaPotencial[i][j] = 0;
-
-	filPotPrio = colPotPrio = 4;
-
 }
 
 //Movimientos
@@ -722,6 +849,7 @@ Action ComportamientoJugador::movimientoProtExp(){
 
 
 }
+
 //Creación de archivos auxiliares:
 
 void ComportamientoJugador::crearArchivoMatrizAux(Sensores sensores){
@@ -811,13 +939,12 @@ void ComportamientoJugador::crearArchivoMapaProtExp(){
 	//-----
 }
 
+//Think
 Action ComportamientoJugador::think(Sensores sensores){
 
-
-	if(sensores.colision){
+	if(sensores.colision)
 		ultimaAccion = actIDLE;
 		
-	}
 	Action accion = actIDLE;
 
 	AjustesPrimeraIteracion(sensores, bien_situado, fil,col,primiter);
@@ -825,158 +952,25 @@ Action ComportamientoJugador::think(Sensores sensores){
 	//Actualización de mapas y orientación.
 	ActualizacionMapaYorientacion(sensores,fil,col,filAux,colAux,mapaResultado,mapaAuxiliar);
 
-
-
 	//Comprobación y ajuste de casillas K,D o G.
-	if(sensores.terreno[0] == 'D')
-		tengoZapas = true;
-	
-	if(sensores.terreno[0] == 'K')
-		tengoBikini = true;
-
-	if(sensores.terreno[0] == 'G' && !bien_situado){
-		
-		pasarMapaAuxAmapa(sensores);
-		bien_situado = true;
-	}
-
-	if(sensores.terreno[0] == 'K' || sensores.terreno[0] == 'G' || sensores.terreno[0] == 'D')
-		resetPrioritario();
-
-
+	comprobacionKDG(sensores);
 
 	//Detección e iniciación del protocolo prioritario.
-
-	if(!protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado))
-		casillaSensorPrioritaria = detectarObjetoPrioritario(sensores);
-
-	if(casillaSensorPrioritaria != -1 && !protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado)){
-		protocoloPrioritario = true;
-		CrearMapaPotencialPrioritario(sensores,casillaSensorPrioritaria,brujula);
-	}
-
-	//Detección, iniciación y creación del protocolo Explorar y su mapa de potencial.
-	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP and ticksDefault == 0){
-		protocoloEXP = true;
-		Posicion nula;
-		nula.posX = -1;
-		nula.posY = -1;
-		objetivoExplor = CrearMapaProtExp(false, nula);
-		
-		if(objetivoExplor.posX == -1 && objetivoExplor.posY == -1)
-			protocoloEXP = false;
+	detectarEiniciarPrioritario(sensores);
 	
-		crearArchivoMapaProtExp();
-		
-	}
+	//Detección, iniciación y creación del protocolo Explorar y su mapa de potencial.
+	detectarEiniciarExploracion(sensores);
 
 	
 	//Comprobamos que el objetivo de exploración no sea innacesible (reducimos su rango)
-	
-	if(protocoloEXP && objetivoExplor.posX != -1 && objetivoExplor.posY != -1){
+	inaccesibilidadPrio();
 
-		int caso;
-
-		if(col == objetivoExplor.posY && fil > objetivoExplor.posX)
-			caso = 0;
-		 else if(col == objetivoExplor.posY && fil < objetivoExplor.posX)
-			caso = 2;
-		 else if(fil == objetivoExplor.posX && col < objetivoExplor.posY)
-			caso = 1;
-		 else 
-			caso = 3;
-		
-		
-		switch (caso){
-		case 0:
-			if(fil - objetivoExplor.posX <= 3)
-				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
-					objetivoExplor.posX++;
-			break;
-		
-		case 1:
-			
-			if(objetivoExplor.posY - col  <= 3)
-				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
-					objetivoExplor.posY--;
-			break;
-
-		case 2:
-			if(objetivoExplor.posX  - fil<= 3)
-				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
-					objetivoExplor.posX--;
-			break;
-
-		case 3:
-			if(col - objetivoExplor.posY  <= 3)
-				while(mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'M' || mapaResultado[objetivoExplor.posX][objetivoExplor.posY] == 'P')
-					objetivoExplor.posY++;
-			break;
-		}
-		cout << objetivoExplor.posX << " " << objetivoExplor.posY<< " " << mapaPotencialExp[objetivoExplor.posX][objetivoExplor.posY]<< endl;
-		//Comprobamos si hemos llegado al destino.
-		if(fil == objetivoExplor.posX && col == objetivoExplor.posY){
-			
-			proxReajuste = "";
-			protocoloEXP = false;
-			objetivoExplor.posX = -1;
-			objetivoExplor.posY = -1;
-
-			// Se reajusta el mapamapa potencial exploracion
-      		mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
-      		for(int i=0; i<mapaResultado.size(); i++)
-        		for(int j=0; j<mapaResultado.size(); j++)
-          			mapaPotencialExp[i][j] = 0;
-		}
-	}
 	
 
 	//colocamos los -100 en el mapa de pontencial de exploración.
-	for(int i=0; i<mapaResultado.size(); i++){
-		for(int j=0; j<mapaResultado.size(); j++){
-			if(mapaResultado[i][j] == 'M' || mapaResultado[i][j] == 'P') 
-				mapaPotencialExp[i][j] = -100;
-
-			if(mapaPotencialExp[i][j] > MaximoPotencialExp)
-				MaximoPotencialExp = mapaPotencialExp[i][j];
-		}
-	}
+	ColocarObstaculosExploracion();
 	//Comprobamos si ha finalizado el protocolo de exploración 
-	if(protocoloEXP){
-		if(mapaPotencialExp[fil][col] == MaximoPotencialExp){
-				
-			proxReajuste = "";
-			protocoloEXP = false;
-			objetivoExplor.posX = -1;
-			objetivoExplor.posY = -1;
-			MaximoPotencialExp = 0;
-
-			// Se reajusta el mapamapa potencial exploracion
-			mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
-			for(int i=0; i<mapaResultado.size(); i++)
-				for(int j=0; j<mapaResultado.size(); j++)
-					mapaPotencialExp[i][j] = 0;
-		}
-	}
-
-if(protocoloEXP){
-
-		if((sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P' or (mapaPotencialExp[fil+1][col] < mapaPotencialExp[fil][col] and mapaPotencialExp[fil-1][col] < mapaPotencialExp[fil][col] and 
-	mapaPotencialExp[fil][col+1] < mapaPotencialExp[fil][col] and mapaPotencialExp[fil-1][col] < mapaPotencialExp[fil][col-1] ))){
-		proxReajuste = "";
-			protocoloEXP = false;
-			objetivoExplor.posX = -1;
-			objetivoExplor.posY = -1;
-			MaximoPotencialExp = 0;
-			ticksDefault = 10;
-			// Se reajusta el mapamapa potencial exploracion
-			mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
-			for(int i=0; i<mapaResultado.size(); i++)
-				for(int j=0; j<mapaResultado.size(); j++)
-					mapaPotencialExp[i][j] = 0;
-	}
-}
-
+	finProtExplor(sensores);
 
 	//Selección de movimiento.
 

@@ -12,7 +12,12 @@ class ComportamientoJugador : public Comportamiento{
     int posX, posY;
   };
   public:
-  
+    void finProtExplor(Sensores sensores);
+    void ColocarObstaculosExploracion();
+    void inaccesibilidadPrio();
+    void detectarEiniciarExploracion(Sensores sensores);
+    void detectarEiniciarPrioritario(Sensores sensores);
+    void comprobacionKDG(Sensores sensores);
     void resetExplor();
     void AjustesPrimeraIteracion(Sensores sensores, bool &bien_situado, int &fil, int &col, bool &primiter);
     void ActualizacionMapaYorientacion(Sensores sensores,int &fil, int &col, int &filAux, int &colAux, vector<vector<unsigned char>> &mapaResultado, vector<vector<unsigned char>> &mapaAuxiliar);

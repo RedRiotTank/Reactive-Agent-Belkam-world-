@@ -240,7 +240,7 @@ void ComportamientoJugador::inaccesibilidadPrio(){
 					objetivoExplor.posY++;
 			break;
 		}
-		cout << objetivoExplor.posX << " " << objetivoExplor.posY<< " " << mapaPotencialExp[objetivoExplor.posX][objetivoExplor.posY]<< endl;
+		
 		//Comprobamos si hemos llegado al destino.
 		if(fil == objetivoExplor.posX && col == objetivoExplor.posY){
 			
@@ -260,7 +260,7 @@ void ComportamientoJugador::inaccesibilidadPrio(){
 
 void ComportamientoJugador::detectarEiniciarPrioritario(Sensores sensores){
 
-	if(!protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado))
+	if(!protocoloPrioritario and !protRecarga and (!tengoBikini or !tengoZapas or !bien_situado))
 		casillaSensorPrioritaria = detectarObjetoPrioritario(sensores);
 
 	if(casillaSensorPrioritaria != -1 && !protocoloPrioritario and (!tengoBikini or !tengoZapas or !bien_situado)){
@@ -474,6 +474,8 @@ ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(bool rea
 					incOeste++;
 
 	}
+
+
 		
 	
 	if(incNorte == 0 && incSur == 0 && incEste == 0 && incOeste == 0 && !reajuste){
@@ -623,12 +625,16 @@ ComportamientoJugador::Posicion ComportamientoJugador::CrearMapaProtExp(bool rea
 }
 
 void ComportamientoJugador::detectarEiniciarExploracion(Sensores sensores){
-	if(!protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP and ticksDefault == 0){
+	
+	if(!protRecarga and !protocoloPrioritario and bien_situado and tengoBikini and tengoZapas and !protocoloEXP and ticksDefault == 0){
+		
 		protocoloEXP = true;
 		Posicion nula;
 		nula.posX = -1;
 		nula.posY = -1;
+		
 		objetivoExplor = CrearMapaProtExp(false, nula);
+		
 		
 		if(objetivoExplor.posX == -1 && objetivoExplor.posY == -1)
 			protocoloEXP = false;
@@ -637,6 +643,111 @@ void ComportamientoJugador::detectarEiniciarExploracion(Sensores sensores){
 	}
 }
 
+//recarga
+
+void ComportamientoJugador::protocoloRecarga(Sensores sensores, Posicion &resultado){
+	ticksGeneral--;
+	
+	Posicion pos;
+	pos.posX =-1;
+	pos.posY=-1;
+
+	int cercano = 10000;
+	if(ticksGeneral == 2000 || ticksGeneral == 1000){
+		protRecarga = true;
+		resetPrioritario();
+		finProtExplor(sensores);
+
+		for(int i=0; i<mapaResultado.size(); i++)
+			for(int j=0; j<mapaResultado.size(); j++)
+				if(mapaResultado[i][j] == 'X'){
+					pos.posX = i;
+					pos.posY = j;
+					recargas.push_back(pos);
+					
+				}
+			
+		if(recargas.empty())
+			protRecarga = false;
+		else{
+			
+			vector<Posicion>::const_iterator recarga;
+			for(recarga = recargas.cbegin(); recarga != recargas.cend(); recarga++){
+				
+				if(cercano > (abs((*recarga).posX - fil) + abs((*recarga).posY - col))){
+					
+					cercano = abs((*recarga).posX - fil) + abs((*recarga).posY - col);
+					pos.posX = (*recarga).posX;
+					pos.posY = (*recarga).posY;
+				}
+			
+			}
+			CrearMapaPotencialRecarga(pos);
+			crearArchivoMapaProtrecarga();
+			cout << "recargacercana: " << pos.posX << " " << pos.posY << endl;
+		}
+	}	
+}
+
+void ComportamientoJugador::CrearMapaPotencialRecarga(Posicion recarga){
+
+	if(recarga.posX != -1 && recarga.posY != -1){
+			int objX=recarga.posX;
+			int objY=recarga.posY;
+			//radiales horizontales:
+
+				int puntos = (col - objY) * 10;//distancia a objetivo
+				int contador = 0;
+
+				//objetivo hacia el jugador.
+				for(int i=objY; i != mapaResultado.size(); i++){
+					mapaPotencialRecarga[objX][i] = puntos - contador;
+					contador++;
+					int contadorfilas = 1;
+					for(int j=objX-1; j!= -1; j--){mapaPotencialRecarga[j][i] = mapaPotencialRecarga[objX][i] -contadorfilas; contadorfilas++; }
+					contadorfilas = 1;
+					for(int j=objX+1; j!=mapaResultado.size(); j++){mapaPotencialRecarga[j][i] = mapaPotencialRecarga[objX][i] - contadorfilas; contadorfilas++; }
+				}
+				contador = 0;
+
+				//objetivo hacia izq:
+				for(int i=objY; i >= 0; i--){
+					mapaPotencialRecarga[objX][i] = puntos - contador;
+					contador++;
+					int contadorfilas = 1;
+					for(int j=objX-1; j!= -1; j--){mapaPotencialRecarga[j][i] = mapaPotencialRecarga[objX][i] - contadorfilas; contadorfilas++; }
+					contadorfilas = 1;
+					for(int j=objX+1; j!=mapaResultado.size(); j++){mapaPotencialRecarga[j][i] = mapaPotencialRecarga[objX][i] - contadorfilas; contadorfilas++; }
+				}
+				contador = 0;
+
+	}
+
+}
+
+void ComportamientoJugador::finProtRecarga(Sensores sensores){
+	if(protRecarga){
+
+		if(ticksMantenerseEnRecarga > 0 && sensores.terreno[0] == 'X'){
+			enRecarga = true;
+
+		} else { enRecarga = false;}
+
+		if(sensores.terreno[0] == 'X' and !enRecarga){
+			protRecarga = false;
+			recargaMasCercana.posX = -1;
+			recargaMasCercana.posY = -1;
+			ticksDefault = 3;
+			ticksMantenerseEnRecarga = 100;
+			enRecarga = false;
+
+			for(int i=0; i<mapaResultado.size(); i++)
+				for(int j=0; j<mapaResultado.size(); j++)
+					mapaPotencialRecarga[i][j] = 0;
+
+		}
+	}
+}
 //Movimientos
 Action ComportamientoJugador::movimientoDefault(Sensores sensores){
 
@@ -850,6 +961,124 @@ Action ComportamientoJugador::movimientoProtExp(){
 
 }
 
+
+Action ComportamientoJugador::movimientoRecarga(){
+	bool norte = false, sur = false, este = false, oeste = false;
+	int max = mapaPotencialRecarga[fil][col];
+
+
+	if(enRecarga){
+		ticksMantenerseEnRecarga--;
+		return actIDLE;
+	}
+
+	if(fil != 0){
+
+		if(mapaPotencialRecarga[fil-1][col] >max){
+		
+		norte = true;
+		max = mapaPotencialRecarga[fil-1][col];
+		}
+	}
+
+	if(fil != mapaPotencialRecarga.size()){
+
+		if(mapaPotencialRecarga[fil+1][col] > max){
+			
+		sur = true;
+		norte = false;
+		max = mapaPotencialRecarga[fil+1][col];
+		}
+	}
+	if(col != mapaPotencialRecarga.size()){
+		if(mapaPotencialRecarga[fil][col+1] >max){
+		
+			este = true;
+			sur = false;
+			norte = false;
+			max = mapaPotencialRecarga[fil][col+1];
+		}
+	}
+
+	if(col != 0){
+
+		if(mapaPotencialRecarga[fil][col-1] > max){
+			//<< "D" <<endl;
+		oeste = true;
+		este = false;
+		sur = false;
+		norte = false;
+		max = mapaPotencialRecarga[fil][col-1];
+		}	
+	}
+
+
+	if(norte && brujula == 0)
+		return actFORWARD;
+	else if(sur && brujula == 2)
+		return actFORWARD;
+	else if(este && brujula == 1)
+		return actFORWARD;
+	else if(oeste && brujula == 3)
+		return actFORWARD;
+	else {
+
+		switch (brujula)
+		{
+		case 0:
+			if(oeste)
+				return actTURN_L;
+			
+			if(este)
+				return actTURN_R;
+
+			if(sur)
+				return actTURN_L;
+
+			break;
+		
+		case 1:
+
+			if(norte)
+				return actTURN_L;
+			
+			if(oeste)
+				return actTURN_R;
+
+			if(sur)
+				return actTURN_R;
+
+			break;
+		case 2:
+
+			if(oeste)
+				return actTURN_R;
+			
+			if(este)
+				return actTURN_L;
+
+			if(norte)
+				return actTURN_L;
+		break;
+
+		case 3:
+
+		if(norte)
+				return actTURN_R;
+			
+			if(este)
+				return actTURN_R;
+
+			if(sur)
+				return actTURN_L;
+		break;
+
+		}
+	}
+
+
+}
+
 //Creación de archivos auxiliares:
 
 void ComportamientoJugador::crearArchivoMatrizAux(Sensores sensores){
@@ -939,6 +1168,37 @@ void ComportamientoJugador::crearArchivoMapaProtExp(){
 	//-----
 }
 
+void ComportamientoJugador::crearArchivoMapaProtrecarga(){
+
+	//-----
+		ofstream archivo;
+		archivo.open("mapapotencialReCaRga.txt",ios::out);
+		if(archivo.fail()){
+			cout << "ERROR AL CREAR EL ARCHIVO";
+			exit(1);
+		} else {
+			
+			for(int j=0; j<mapaPotencialRecarga.size(); j++){
+				archivo<< setw(5)<<j;
+			}
+			archivo<<endl;
+			
+			for(int i=0; i<mapaPotencialRecarga.size(); i++){
+				for(int j=0; j<mapaPotencialRecarga.size(); j++){
+					archivo<<setw(5)<<mapaPotencialRecarga[i][j];
+				}
+				archivo << endl;
+			}
+
+
+			
+
+		}
+		archivo.close();
+
+	//-----
+}
+
 //Think
 Action ComportamientoJugador::think(Sensores sensores){
 
@@ -972,6 +1232,10 @@ Action ComportamientoJugador::think(Sensores sensores){
 	//Comprobamos si ha finalizado el protocolo de exploración 
 	finProtExplor(sensores);
 
+	
+	protocoloRecarga(sensores,recargaMasCercana);
+	finProtRecarga(sensores);
+
 	//Selección de movimiento.
 
 	if(protocoloPrioritario){
@@ -989,8 +1253,14 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 		if(ultimaAccion == actIDLE)
 			mapaPotencialExp[fil][col]--;
+
 		accion = movimientoProtExp();
 		
+	} else if(protRecarga){
+		cout << "R" << endl;
+		if(ultimaAccion == actIDLE)
+			mapaPotencialRecarga[fil][col]--;
+		accion = movimientoRecarga();
 	}
 	else {
 		cout << "D" << endl;

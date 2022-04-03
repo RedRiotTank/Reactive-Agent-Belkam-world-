@@ -12,6 +12,11 @@ class ComportamientoJugador : public Comportamiento{
     int posX, posY;
   };
   public:
+    void finProtRecarga(Sensores sensores);
+    Action movimientoRecarga();
+    void crearArchivoMapaProtrecarga();
+    void CrearMapaPotencialRecarga(Posicion recarga);
+    void protocoloRecarga(Sensores sensores, Posicion &resultado);
     void finProtExplor(Sensores sensores);
     void ColocarObstaculosExploracion();
     void inaccesibilidadPrio();
@@ -41,6 +46,10 @@ class ComportamientoJugador : public Comportamiento{
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
+      enRecarga = false;
+      ticksMantenerseEnRecarga = 100;
+      protRecarga = false;
+      ticksGeneral = 3000;
       ticksDefault = 0;
       pintarPrecipicios();
       // Dar el valor inicial a las variables de estado
@@ -90,6 +99,14 @@ class ComportamientoJugador : public Comportamiento{
         for(int j=0; j<mapaResultado.size(); j++)
           mapaPotencialExp[i][j] = 0;
 
+
+       //mapa potencial recarga
+      mapaPotencialRecarga = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
+
+      for(int i=0; i<mapaResultado.size(); i++)
+        for(int j=0; j<mapaResultado.size(); j++)
+          mapaPotencialRecarga[i][j] = 0;
+
       //movimiento
       protocoloPrioritario = false;
       
@@ -106,9 +123,13 @@ class ComportamientoJugador : public Comportamiento{
   private:
   
   // Declarar aquí las variables de estado
+    bool protRecarga;
+    Posicion recargaMasCercana;
+    vector<Posicion> recargas;
     vector<vector<unsigned char>> mapaAuxiliar;
     vector<vector<int>> mapaPotencial;
     vector<vector<int>> mapaPotencialExp;
+    vector<vector<int>> mapaPotencialRecarga;
     int fil, col;
     int filPotPrio,colPotPrio;
     int filAux, colAux, brujula;
@@ -124,7 +145,9 @@ class ComportamientoJugador : public Comportamiento{
     string proxReajuste;
     int MaximoPotencialExp;
     int ticksDefault;
-    
+    int ticksGeneral;
+    int ticksMantenerseEnRecarga;
+    bool enRecarga;
     
 
 };

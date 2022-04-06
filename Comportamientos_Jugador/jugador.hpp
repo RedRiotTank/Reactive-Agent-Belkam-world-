@@ -4,6 +4,7 @@
 #include "comportamientos/comportamiento.hpp"
 
 #include<iostream>
+#include <map>
 
 using namespace std;
 
@@ -12,6 +13,7 @@ class ComportamientoJugador : public Comportamiento{
     int posX, posY;
   };
   public:
+    void finrecargaAbrupto();
     void finProtRecarga(Sensores sensores);
     Action movimientoRecarga();
     void crearArchivoMapaProtrecarga();
@@ -46,6 +48,9 @@ class ComportamientoJugador : public Comportamiento{
 
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
+      giroEmergenciaCierro = false;
+      contadorGiroEmergencia = 10;
+      contadorReseteo = 0;
       enRecarga = false;
       ticksMantenerseEnRecarga = 100;
       protRecarga = false;
@@ -148,6 +153,10 @@ class ComportamientoJugador : public Comportamiento{
     int ticksGeneral;
     int ticksMantenerseEnRecarga;
     bool enRecarga;
+    int contadorReseteo;
+     map<pair<int,int>,int> recorrido;
+     bool giroEmergenciaCierro;
+     int contadorGiroEmergencia;
     
 
 };

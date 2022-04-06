@@ -689,6 +689,19 @@ void ComportamientoJugador::protocoloRecarga(Sensores sensores, Posicion &result
 	}	
 }
 
+void ComportamientoJugador::finrecargaAbrupto(){
+	protRecarga = false;
+			recargaMasCercana.posX = -1;
+			recargaMasCercana.posY = -1;
+			ticksDefault = 3;
+			ticksMantenerseEnRecarga = 100;
+			enRecarga = false;
+
+			for(int i=0; i<mapaResultado.size(); i++)
+				for(int j=0; j<mapaResultado.size(); j++)
+					mapaPotencialRecarga[i][j] = 0;
+}
+
 void ComportamientoJugador::CrearMapaPotencialRecarga(Posicion recarga){
 
 	if(recarga.posX != -1 && recarga.posY != -1){
@@ -734,16 +747,7 @@ void ComportamientoJugador::finProtRecarga(Sensores sensores){
 		} else { enRecarga = false;}
 
 		if(sensores.terreno[0] == 'X' and !enRecarga){
-			protRecarga = false;
-			recargaMasCercana.posX = -1;
-			recargaMasCercana.posY = -1;
-			ticksDefault = 3;
-			ticksMantenerseEnRecarga = 100;
-			enRecarga = false;
-
-			for(int i=0; i<mapaResultado.size(); i++)
-				for(int j=0; j<mapaResultado.size(); j++)
-					mapaPotencialRecarga[i][j] = 0;
+			finrecargaAbrupto();
 
 		}
 	}
@@ -753,7 +757,7 @@ Action ComportamientoJugador::movimientoDefault(Sensores sensores){
 
 
 if(sensores.superficie[2] != '_')
-	return actIDLE;
+	return actTURN_L;
 
 	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
 		or  (sensores.terreno[2] == 'A' and tengoBikini) 
@@ -1201,10 +1205,30 @@ void ComportamientoJugador::crearArchivoMapaProtrecarga(){
 
 //Think
 Action ComportamientoJugador::think(Sensores sensores){
+	pair<int,int> posic;
+	if(bien_situado){
+		posic.first = fil;
+		posic.second = col;
+		recorrido[posic] += 1;
+	}
 
-	if(sensores.colision)
+	if(sensores.colision){
 		ultimaAccion = actIDLE;
-		
+		contadorReseteo++;
+	}
+
+	if(contadorReseteo == 5){
+		cout << "A"<<endl;
+		contadorReseteo = 0;
+		resetPrioritario();
+		finProtExplor(sensores);
+		finrecargaAbrupto();
+	}
+
+	if(sensores.superficie[2] != '_')
+		finrecargaAbrupto();
+
+
 	Action accion = actIDLE;
 
 	AjustesPrimeraIteracion(sensores, bien_situado, fil,col,primiter);
@@ -1238,32 +1262,25 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	//Selección de movimiento.
 
-	if(protocoloPrioritario){
+	if(protocoloPrioritario)
+		accion = movimientoPrioritario(sensores,brujula);	
 		
-		cout << "P" << endl;
-		accion = movimientoPrioritario(sensores,brujula);	//seguir mapa de potencial en vez de mapa normal.
-		
-	}
 	else if(protocoloEXP){
-		cout << "E" << endl;
 		
 		if(bien_situado)
 			crearArchivoMapaProtExp();
 		
-
 		if(ultimaAccion == actIDLE)
 			mapaPotencialExp[fil][col]--;
 
 		accion = movimientoProtExp();
 		
 	} else if(protRecarga){
-		cout << "R" << endl;
 		if(ultimaAccion == actIDLE)
 			mapaPotencialRecarga[fil][col]--;
 		accion = movimientoRecarga();
 	}
 	else {
-		cout << "D" << endl;
 		if(ticksDefault >0)
 			ticksDefault--;
 		accion = movimientoDefault(sensores);
@@ -1271,8 +1288,39 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 //----------------------------------------------------------------------
 	// Determinar el efecto de la ultima accion enviada
-	ultimaAccion = accion;
 	
+
+
+	if(bien_situado){
+
+		if(giroEmergenciaCierro){
+			contadorGiroEmergencia--;
+
+		}
+
+		
+		if(recorrido[posic] > 5 and !giroEmergenciaCierro){
+			pair<int,int> izq,dcha,arb,abj;
+			izq = dcha = posic;
+			izq.second--;
+			dcha.second++;
+			cout << "A" << endl;
+			if(recorrido[izq] > 5 && recorrido[dcha] > 5){
+				accion = actTURN_L;
+				giroEmergenciaCierro = true;
+				cout << "B" << endl;
+			}
+				
+		}
+
+		if(contadorGiroEmergencia == 0 && giroEmergenciaCierro){
+			contadorGiroEmergencia = 10;
+			giroEmergenciaCierro = false;
+		}
+
+	}
+
+	ultimaAccion = accion;
 	return accion;
 }
 

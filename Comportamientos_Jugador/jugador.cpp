@@ -416,7 +416,7 @@ void ComportamientoJugador::finProtExplor(Sensores sensores){
 			objetivoExplor.posX = -1;
 			objetivoExplor.posY = -1;
 			MaximoPotencialExp = 0;
-			ticksDefault = 10;
+			ticksDefault = 12;
 			// Se reajusta el mapamapa potencial exploracion
 			mapaPotencialExp = vector<vector<int>>(mapaResultado.size(),vector<int>(mapaResultado.size()));
 			for(int i=0; i<mapaResultado.size(); i++)
@@ -693,8 +693,8 @@ void ComportamientoJugador::finrecargaAbrupto(){
 	protRecarga = false;
 			recargaMasCercana.posX = -1;
 			recargaMasCercana.posY = -1;
-			ticksDefault = 3;
-			ticksMantenerseEnRecarga = 100;
+			ticksDefault = 12;
+			ticksMantenerseEnRecarga = 500;
 			enRecarga = false;
 
 			for(int i=0; i<mapaResultado.size(); i++)
@@ -759,7 +759,8 @@ Action ComportamientoJugador::movimientoDefault(Sensores sensores){
 if(sensores.superficie[2] != '_')
 	return actTURN_L;
 
-	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' and sensores.terreno[2] != 'B') 
+	if(!protocoloPrioritario and ((sensores.superficie[2] == '_' and sensores.terreno[2] != 'M' and sensores.terreno[2] != 'P' and sensores.terreno[2] != 'A' 
+		and sensores.terreno[2] != 'B') 
 		or  (sensores.terreno[2] == 'A' and tengoBikini) 
 		or (sensores.terreno[2] == 'B' and tengoZapas)) ){
 		
@@ -1218,7 +1219,7 @@ Action ComportamientoJugador::think(Sensores sensores){
 	}
 
 	if(contadorReseteo == 5){
-		cout << "A"<<endl;
+		
 		contadorReseteo = 0;
 		resetPrioritario();
 		finProtExplor(sensores);
@@ -1262,11 +1263,12 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	//Selección de movimiento.
 
-	if(protocoloPrioritario)
+	if(protocoloPrioritario){
+		cout << "P" <<endl;
 		accion = movimientoPrioritario(sensores,brujula);	
 		
-	else if(protocoloEXP){
-		
+	}else if(protocoloEXP){
+		cout << "E" <<endl;
 		if(bien_situado)
 			crearArchivoMapaProtExp();
 		
@@ -1276,11 +1278,13 @@ Action ComportamientoJugador::think(Sensores sensores){
 		accion = movimientoProtExp();
 		
 	} else if(protRecarga){
+		cout << "R" <<endl;
 		if(ultimaAccion == actIDLE)
 			mapaPotencialRecarga[fil][col]--;
 		accion = movimientoRecarga();
 	}
 	else {
+		cout << "D" <<endl;
 		if(ticksDefault >0)
 			ticksDefault--;
 		accion = movimientoDefault(sensores);
@@ -1304,11 +1308,12 @@ Action ComportamientoJugador::think(Sensores sensores){
 			izq = dcha = posic;
 			izq.second--;
 			dcha.second++;
-			cout << "A" << endl;
+			
 			if(recorrido[izq] > 5 && recorrido[dcha] > 5){
+				cout << "Emergency" <<endl;
 				accion = actTURN_L;
 				giroEmergenciaCierro = true;
-				cout << "B" << endl;
+				
 			}
 				
 		}

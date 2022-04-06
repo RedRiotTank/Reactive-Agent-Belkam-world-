@@ -52,7 +52,7 @@ class ComportamientoJugador : public Comportamiento{
       contadorGiroEmergencia = 10;
       contadorReseteo = 0;
       enRecarga = false;
-      ticksMantenerseEnRecarga = 100;
+      ticksMantenerseEnRecarga = 300;
       protRecarga = false;
       ticksGeneral = 3000;
       ticksDefault = 0;

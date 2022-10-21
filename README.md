@@ -2,4 +2,4 @@
 
 WARNING: this repository is for academic purposes only, it may contain errors or bad habits.
 
-Subject: AI 2ºGrade, 2º practice.
+Subject: AI 2ºGrade, 1º practice.
